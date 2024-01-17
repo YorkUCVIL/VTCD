@@ -97,13 +97,29 @@
 				<img class='author_icon' src='img/matt_kowal.png'>
 				<p>Matt Kowal</p>
 			</a>
+			<a class='project_author' href='https://www.achaldave.com/'>
+				<img class='author_icon' src='img/achal.jpeg'>
+				<p>Achal Dave</p>
+			</a>
+			<a class='project_author' href='https://www.tri.global/about-us/dr-rares-ambrus'>
+				<img class='author_icon' src='img/RaresAmbrus.jpeg'>
+				<p>Rares Ambrus</p>
+			</a>
+			<a class='project_author' href='https://adriengaidon.com/'>
+				<img class='author_icon' src='img/adrien-gaidon.jpg'>
+				<p>Adrien Gaidon</p>
+			</a>
 			<a class='project_author' href='https://csprofkgd.github.io/'>
 				<img class='author_icon' src='img/kosta.jpg'>
 				<p>Konstantinos G. Derpanis</p>
 			</a>
+			<a class='project_author' href='https://pvtokmakov.github.io/home/'>
+				<img class='author_icon' src='img/pavel.jpeg'>
+				<p>Pavel Tokmakov</p>
+			</a>
 		</div>
 
-		 <h1 id="figure1">What concepts are important for object permanence?</h1>
+		 <h1 id="figure1">What concepts are important for object permanence in video transformer layers?</h1>
 <!--          <p>-->
 <!--            In this visualization, we show the video version of Figure 1 from-->
 <!--            the main paper. The prediction heatmap of the TCOW model is shown on-->
@@ -114,7 +130,7 @@
 
           <div class="video-container-rosetta">
             <div class="video-wrapper-rosetta">
-              <div class="video-title">Input and Prediction</div>
+              <div class="video-title">Input and Model Prediction </div>
               <video autoplay loop muted controls width="100%" height="auto">
                 <source
                   src="concepts/Figure1/prediction.mp4"
@@ -123,7 +139,7 @@
               </video>
             </div>
             <div class="video-wrapper-rosetta">
-              <div class="video-title">Layer 3 - </div>
+              <div class="video-title">Layer 3 - Temporally Invariant Spatial Positions</div>
               <video autoplay loop muted controls width="100%" height="auto">
                 <source
                   src="concepts/Figure1/cluster6lay2head4.mp4"
@@ -132,7 +148,7 @@
               </video>
             </div>
             <div class="video-wrapper-rosetta">
-              <div class="video-title">Layer 7 - </div>
+              <div class="video-title">Layer 7 - Collisions Between Objects </div>
               <video autoplay loop muted controls width="100%" height="auto">
                 <source
                   src="concepts/Figure1/cluster11lay6head7.mp4"
@@ -141,7 +157,7 @@
               </video>
             </div>
             <div class="video-wrapper-rosetta">
-              <div class="video-title">Layer 10 - </div>
+              <div class="video-title">Layer 10 - Container Containing Object </div>
               <video autoplay loop muted controls width="100%" height="auto">
                 <source
                   src="concepts/Figure1/cluster4lay9head7.mp4"
@@ -150,7 +166,7 @@
               </video>
             </div>
             <div class="video-wrapper-rosetta">
-              <div class="video-title">Layer 12 - </div>
+              <div class="video-title">Layer 12: Object Tracking Through Occlusions</div>
               <video autoplay loop muted controls width="100%" height="auto">
                 <source
                   src="concepts/Figure1/cluster0lay11head0.mp4"
@@ -166,23 +182,48 @@
 		This paper studies the problem of concept-based interpretability of transformer representations for videos. Concretely, we seek to explain the decision-making process of video transformers based on high-level, spatiotemporal concepts that are automatically discovered.
 		Prior research on concept-based interpretability has concentrated solely on image-level tasks.
 		Comparatively, video models deal with the added temporal dimension, increasing complexity and posing challenges in identifying dynamic concepts over time.
-		In this work, we systematically address these challenges by introducing the first Video Transformer Concept Discovery (VTCD) algorithm. To this end, we propose an efficient approach for unsupervised identification of units of video transformer representations - concepts, and ranking their importance to the output of a model. The resulting concepts are highly interpretable, revealing spatio-temporal reasoning mechanisms and object-centric representations in unstructured video models. Performing this analysis jointly over a diverse set of supervised and self-supervised representations, we discover that some of these mechanism are universal in video transformers. Finally, we demonstrate that VTCD can be used to improve model performance for fine-grained tasks.
+		In this work, we systematically address these challenges by introducing the first Video Transformer Concept Discovery (VTCD) algorithm.
+		To this end, we propose an efficient approach for unsupervised identification of units of video transformer representations - concepts, and ranking their importance to the output of a model.
+		The resulting concepts are highly interpretable, revealing spatio-temporal reasoning mechanisms and object-centric representations in unstructured video models.
+		Performing this analysis jointly over a diverse set of supervised and self-supervised representations, we discover that some of these mechanism are universal in video transformers.
+		Finally, we demonstrate that VTCD can be used to improve model performance for fine-grained tasks.
 
 		<h1 class='project_section'>Method Overview</h1>
+		 <h2 id="figure2">Concept Discovery</h2>
 		<img src='img/main_method.png'>
-		We quantify the amount of static and dynamic information contained in spatio-temporal models through an estimation of mutual information between static and dynamic pairs. For action recognition models, the static pairs consist of the same video with shuffled frames. For the dynamic pair, we use the same video with two different styles. For video object segmentation (we explore two-stream models in this work), we use flow-jitter to perturb the dynamic information and stylization to perturb the static information.
+		We discover concepts.
 
+		<h2 id="figure3">Concept Importance</h2>
+		<div style='text-align: center;'>
+			<img src='img/importance.png' style='width: 700px; height: auto;'>
+		</div>
+		We rank the importance of concepts.
+
+		<h2 id="figure4">Rosetta Concepts</h2>
+		We find universal concepts in all models.
 
 		<h1 class='project_section'>Results</h1>
-		<img src='img/ar_result.png'>
-		The first domain we study with our proposed approach is action recognition. A main finding in our work is that Diving48 is not as biased towards dynamics as previously thought. Interestingly, something-something-v2 guides the model to learn significantly more dynamic information than either Diving48 or Kinetics. Additionally, Diving48 results in `residual' neurons: neurons which encode neither static nor dynamic information.
 
-		<img src='img/vos_result.png'>
-		Our method has shown generality to other tasks such as video object segmentation (VOS). We found that 2-stream architectures with cross connections result in a better balance between static and dynamic. Originally, reciprocal (motion-to-appearance and appearance-to-motion) cross connections in RTNet showed few dynamic units. However, we showed that a model with reciprocal cross connections that does not undergo DUTS pretraining results in more dynamics. Finally, we show well known datasets used for training VOS models are static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.
-		<h1 class='project_video'> Presentation and Demo </h1>
-			<center>
-				<iframe width="900" height="500" src="https://www.youtube.com/embed/3EWinAPTBkE">
-				</iframe>
+		<h2 >Important Concepts</h2>
+		<h3 >Semi VOS</h3>
+
+		<h3 >Action Recognition</h3>
+
+		<h2 >Rosetta Concepts</h2>
+
+		<h1 >Application: Efficient Inference with Concept-Head Pruning</h1>
+		<div style='text-align: center;'>
+			<img src='img/headprune.png' style='width: 500px; height: auto;'>
+		</div>
+<!--		<img src='img/ar_result.png'>-->
+<!--		The first domain we study with our proposed approach is action recognition. A main finding in our work is that Diving48 is not as biased towards dynamics as previously thought. Interestingly, something-something-v2 guides the model to learn significantly more dynamic information than either Diving48 or Kinetics. Additionally, Diving48 results in `residual' neurons: neurons which encode neither static nor dynamic information.-->
+
+<!--		<img src='img/vos_result.png'>-->
+<!--		Our method has shown generality to other tasks such as video object segmentation (VOS). We found that 2-stream architectures with cross connections result in a better balance between static and dynamic. Originally, reciprocal (motion-to-appearance and appearance-to-motion) cross connections in RTNet showed few dynamic units. However, we showed that a model with reciprocal cross connections that does not undergo DUTS pretraining results in more dynamics. Finally, we show well known datasets used for training VOS models are static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.-->
+<!--		<h1 class='project_video'> Presentation and Demo </h1>-->
+<!--			<center>-->
+<!--				<iframe width="900" height="500" src="https://www.youtube.com/embed/3EWinAPTBkE">-->
+<!--				</iframe>-->
 			</center>
 
 
