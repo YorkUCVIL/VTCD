@@ -1,13 +1,46 @@
-<!doctype html>
-<html lang='en'>
-	<head>
-		<meta charset='utf-8'>
-		<title>VTCD</title>
-		<link rel='icon' href='/~jjyu/favicon.png'>
-		<link rel='stylesheet' href='project_page.css' type='text/css'>
-		<meta name='viewport' content='width=device-width, initial-scale=1'>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos.">
+  <meta name="keywords" content="Nerfies, D-NeRF, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VTCD: Understanding Video Transformers via Universal Concept Discovery</title>
 
-		<style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <style>
 		  .main-container {
 			display: flex;
 			justify-content: center;
@@ -21,6 +54,14 @@
 			margin-right: auto;
 			width: 15%;
 		  }
+          .vertical-divider {
+            height: auto; /* Adjust the height as needed */
+            width: 1px; /* Thickness of the line */
+            background-color: black; /* Color of the line */
+            margin: 0 auto; /* Center the line */
+          }
+
+
 		  .video-container-rosetta {
 			display: flex;
 			justify-content: center; /* Align videos to the center */
@@ -41,7 +82,7 @@
 		  }
 
 		  .video-wrapper-single {
-			flex: 0 0 35%; /* Do not grow, do not shrink, start at 32% width */
+			flex: 0 0 32%; /* Do not grow, do not shrink, start at 32% width */
 			margin: 0 0.5%; /* Provide some space between the videos */
 			box-sizing: border-box; /* Include padding and borders in the element's total width and height */
 		  }
@@ -84,50 +125,125 @@
 			}
     </style>
 
-	</head>
+</head>
+<body>
 
-	<body>
-		<h1 class='project_title'>Understanding Video Transformers via
-          Universal Concept Discovery</h1>
-		<div class='project_date'>January 20, 2024</div>
+<!--<nav class="navbar" role="navigation" aria-label="main navigation">-->
+<!--  <div class="navbar-brand">-->
+<!--    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">-->
+<!--      <span aria-hidden="true"></span>-->
+<!--      <span aria-hidden="true"></span>-->
+<!--      <span aria-hidden="true"></span>-->
+<!--    </a>-->
+<!--  </div>-->
+<!--  <div class="navbar-menu">-->
+<!--    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">-->
+<!--      <a class="navbar-item" href="https://keunhong.com">-->
+<!--      <span class="icon">-->
+<!--          <i class="fas fa-home"></i>-->
+<!--      </span>-->
+<!--      </a>-->
 
-		<h2 class='project_section'>Authors</h2>
-		<div class='project_author_wrapper'>
-			<a class='project_author' href='https://mkowal2.github.io/'>
-				<img class='author_icon' src='img/matt_kowal.png'>
-				<p>Matt Kowal</p>
-			</a>
-			<a class='project_author' href='https://www.achaldave.com/'>
-				<img class='author_icon' src='img/achal.jpeg'>
-				<p>Achal Dave</p>
-			</a>
-			<a class='project_author' href='https://www.tri.global/about-us/dr-rares-ambrus'>
-				<img class='author_icon' src='img/RaresAmbrus.jpeg'>
-				<p>Rares Ambrus</p>
-			</a>
-			<a class='project_author' href='https://adriengaidon.com/'>
-				<img class='author_icon' src='img/adrien-gaidon.jpg'>
-				<p>Adrien Gaidon</p>
-			</a>
-			<a class='project_author' href='https://csprofkgd.github.io/'>
-				<img class='author_icon' src='img/kosta.jpg'>
-				<p>Konstantinos G. Derpanis</p>
-			</a>
-			<a class='project_author' href='https://pvtokmakov.github.io/home/'>
-				<img class='author_icon' src='img/pavel.jpeg'>
-				<p>Pavel Tokmakov</p>
-			</a>
-		</div>
+<!--      <div class="navbar-item has-dropdown is-hoverable">-->
+<!--        <a class="navbar-link">-->
+<!--          More Research-->
+<!--        </a>-->
+<!--        <div class="navbar-dropdown">-->
+<!--          <a class="navbar-item" href="https://hypernerf.github.io">-->
+<!--            HyperNeRF-->
+<!--          </a>-->
+<!--          <a class="navbar-item" href="https://nerfies.github.io">-->
+<!--            Nerfies-->
+<!--          </a>-->
+<!--          <a class="navbar-item" href="https://latentfusion.github.io">-->
+<!--            LatentFusion-->
+<!--          </a>-->
+<!--          <a class="navbar-item" href="https://photoshape.github.io">-->
+<!--            PhotoShape-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
 
-		 <h1 id="figure1">What concepts are important for object permanence in video transformer layers?</h1>
-<!--          <p>-->
-<!--            In this visualization, we show the video version of Figure 1 from-->
-<!--            the main paper. The prediction heatmap of the TCOW model is shown on-->
-<!--            the left. Earlier layers capture positional information, while-->
-<!--            deeper layers capture events, objects, containers or track the target-->
-<!--            object through occlusions.-->
-<!--          </p>-->
+<!--  </div>-->
+<!--</nav>-->
 
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">VTCD: Understanding Video Transformers via Universal Concept Discovery</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://mkowal2.github.io/">Matt Kowal</a><sup>1,3</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.achaldave.com/">Achal Dave</a><sup>3</sup>,</span>
+            <span class="author-block">
+              <a href="https://www.tri.global/about-us/dr-rares-ambrus">Rares Ambrus</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://adriengaidon.com/">Adrien Gaidon</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://csprofkgd.github.io/">Konstantinos G. Derpanis</a><sup>1,2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://pvtokmakov.github.io/home/">Pavel Tokmakov</a><sup>3</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>York University,</span>
+            <span class="author-block"><sup>2</sup>Samsung AI Centre Toronto</span>
+            <span class="author-block"><sup>3</sup>Toyota Research Institute</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://yorkucvil.github.io/VTCD"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              <!-- Video Link. -->
+<!--              <span class="link-block">-->
+<!--                <a href="https://yorkucvil.github.io/VTCD"-->
+<!--                   class="external-link button is-normal is-rounded is-dark">-->
+<!--                  <span class="icon">-->
+<!--                      <i class="fab fa-youtube"></i>-->
+<!--                  </span>-->
+<!--                  <span>Video</span>-->
+<!--                </a>-->
+<!--              </span>-->
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://yorkucvil.github.io/VTCD"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (coming soon)</span>
+                  </a>
+              </span>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <h2 class="title is-3">What concepts are important for encoding object permanence in video transformers?</h2>
+<!--		 <h1 id="figure1">What concepts are important for object permanence in video transformer layers?</h1>-->
           <div class="video-container-rosetta">
             <div class="video-wrapper-rosetta">
               <div class="video-title">Input and Model Prediction </div>
@@ -175,95 +291,350 @@
               </video>
             </div>
           </div>
+      <h2 class="subtitle has-text-centered">
+        VTCD discovers spatiotemporal concepts in video transformer models.
+      </h2>
+    </div>
+  </div>
+</section>
 
-<!--		<img src='vtcd_imgs/teaser.png'>-->
 
-		<h2 class='project_section'>Abstract</h2>
-		This paper studies the problem of concept-based interpretability of transformer representations for videos. Concretely, we seek to explain the decision-making process of video transformers based on high-level, spatiotemporal concepts that are automatically discovered.
-		Prior research on concept-based interpretability has concentrated solely on image-level tasks.
-		Comparatively, video models deal with the added temporal dimension, increasing complexity and posing challenges in identifying dynamic concepts over time.
-		In this work, we systematically address these challenges by introducing the first Video Transformer Concept Discovery (VTCD) algorithm.
-		To this end, we propose an efficient approach for unsupervised identification of units of video transformer representations - concepts, and ranking their importance to the output of a model.
-		The resulting concepts are highly interpretable, revealing spatio-temporal reasoning mechanisms and object-centric representations in unstructured video models.
-		Performing this analysis jointly over a diverse set of supervised and self-supervised representations, we discover that some of these mechanism are universal in video transformers.
-		Finally, we demonstrate that VTCD can be used to improve model performance for fine-grained tasks.
 
-		<h1 class='project_section'>Method Overview</h1>
-		 <h2 id="figure2">Concept Discovery</h2>
-		<img src='img/main_method.png'>
-		We discover concepts.
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+          This paper studies the problem of concept-based interpretability of transformer representations for videos.
+            Concretely, we seek to explain the decision-making process of video transformers based on high-level,
+            spatiotemporal concepts that are automatically discovered.
+          Prior research on concept-based interpretability has concentrated solely on image-level tasks.
+          Comparatively, video models deal with the added temporal dimension, increasing complexity and posing
+            challenges in identifying dynamic concepts over time.
+          In this work, we systematically address these challenges by introducing the first Video Transformer
+            Concept Discovery (VTCD) algorithm.
+          To this end, we propose an efficient approach for unsupervised identification of units of video
+            transformer representations - concepts, and ranking their importance to the output of a model.
+          The resulting concepts are highly interpretable, revealing spatio-temporal reasoning mechanisms and
+            object-centric representations in unstructured video models.
+          Performing this analysis jointly over a diverse set of supervised and self-supervised representations,
+            we discover that some of these mechanism are universal in video transformers.
+          Finally, we demonstrate that VTCD can be used to improve model performance for fine-grained tasks.
 
-		<h2 id="figure3">Concept Importance</h2>
-		<div style='text-align: center;'>
-			<img src='img/importance.png' style='width: 700px; height: auto;'>
-		</div>
-		We rank the importance of concepts.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
 
-		<h2 id="figure4">Rosetta Concepts</h2>
-		We find universal concepts in all models.
+    <!-- Paper video. -->
+<!--    <div class="columns is-centered has-text-centered">-->
+<!--      <div class="column is-four-fifths">-->
+<!--        <h2 class="title is-3">Video</h2>-->
+<!--        <div class="publication-video">-->
+<!--          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"-->
+<!--                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+    <!--/ Paper video. -->
+  </div>
+</section>
 
-		<h1 class='project_section'>Results</h1>
 
-		<h2 >Important Concepts</h2>
-		<h3 >Semi VOS</h3>
+<section class="section">
+  <div class="container is-max-desktop">
 
-		<h3 >Action Recognition</h3>
+    <div class="columns is-centered">
 
-		<h2 >Rosetta Concepts</h2>
+      <!-- Method. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3">Method Overview</h2>
+            <h3 id="figure2">Concept Discovery</h3>
+              <p>
+              To discover concepts in video transformers, we first pass a video dataset through a pretrained model and extract
+              the activations of a given layer. We then cluster the activations using SLIC to generate spatiotemporal tubelets.
+              Finally, we cluster the dataset of tubelets and use the resulting centers as concepts.
+              </p>
+            <img src='img/main_method.png'>
 
-		<h1 >Application: Efficient Inference with Concept-Head Pruning</h1>
-		<div style='text-align: center;'>
+            <h3 id="figure3">Concept Importance</h3>
+              <p>
+              To rank the importance of concepts within individual transformer heads, we find that previous methods
+                based on gradients or masking out single concepts are not effective. Instead, we propose Concept
+                Randomized Importance Sampling (CRIS), which randomly samples concepts from the entire model to mask
+                out and measures the change in model performance.
+              </p>
+            <div style='margin-bottom: 70px; text-align: center;'>
+              <img src='img/importance.png' style='width: 600px; height: auto;'>
+            </div>
+
+
+<!--          <h3 id="figure4">Rosetta Concepts</h3>-->
+<!--              <p>-->
+<!--              We find universal concepts in all models.-->
+<!--              </p>-->
+<!--              <div style='text-align: center;'>-->
+<!--                <img src='img/importance.png' style='width: 700px; height: auto;'>-->
+<!--              </div>-->
+
+              <div class="columns is-centered">
+
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3">Rosetta Concepts</h2>
+          <p>
+            In order to better understand fundamental computations performed by video transformers, we  mine for
+            universal concepts across all models. We filter based on concept importance and on the Intersection
+            over Union (IoU) of the tubelets corresponding to each concept.
+          </p>
+            <div style='text-align: center;'>
+              <img src='img/rosetta_eq.png' style='width: 400px; height: auto;'>
+            </div>
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <div class="column">
+        <div class="columns is-centered">
+          <div class="column content">
+             <div style='text-align: center;'>
+              <img src='img/rosetta_example.png' style='width: 600px; height: auto;'>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Results. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Results</h2>
+
+        <p style='margin-bottom: 20px;' >
+          We analyze four different models trained for different tasks: (i) TCOW trained for semi-supervised video
+          object segmentation to track objects through occlusions (ii) Supervised VideoMAE trained for action recognition (iii)
+          Self-supervised VideoMAE and (iv) InternVideo trained on video-text pairs via contrastive learning.
+        </p>
+
+        <!-- Interpolating. -->
+        <h3 class="title is-4">Most Important Concepts Discovered</h3>
+
+        <h4 class="title is-5">Semi-supervised VOS Concepts - TCOW Concepts</h4>
+
+<!--        <h5 class="title is-6">TCOW Concept 1 - Layer 5 Head 8</h5>-->
+        <p>
+          Shown below are the most three important concepts discovered by VTCD for TCOW. We find that the most
+          important concept highlights objects with similar appearance, suggesting
+          the model solving the disambiguation problem by first identifying
+          possible distractors in mid-layers. The second concept highlights the
+          target object throughout the video. The third concept captures temporally invariant
+          spatial position in the top-left region of the video.
+        </p>
+        <div  class="video-container-single">
+          <div style='margin-bottom: 20px;' class="video-wrapper-single">
+            <div class="video-title">Concept 1 - Layer 5 Head 8</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/1/layer4_head7_concept_7_tube_5.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title">Concept 2 - Layer 9 Head 12</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/2/layer8_head11_concept_3_tube_0.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title">Concept 3 - Layer 3 Head 11</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/3/layer2_head10_concept_3_tube_3.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="video-wrapper-single">
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/1/layer4_head7_concept_7_tube_4.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/2/layer8_head11_concept_3_tube_5.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title"></div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/tcow/2/layer8_head11_concept_3_tube_5.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </div>
+
+
+
+        <h4 class="title is-5">Action Recognition Concepts - VideoMAE Concepts</h4>
+
+<!--        <h5 class="title is-6">TCOW Concept 1 - Layer 5 Head 8</h5>-->
+        <p>
+          Shown below are the most three important concepts discovered by VTCD for VideoMAE trained on SSv2 targetting
+          the class `dropping something into
+          something'. The first concept highlights the object being dropped until the dropping event, at which point
+            both the object and container are highlighted. The second concept captures the container being dropped into,
+            notably not capturing the object itself and making a ring-like shape. As in the TCOW model, VideoMAE also
+          contains concepts that capture spatial information, this one highlighting the center of the video.
+        </p>
+        <div  class="video-container-single">
+          <div style='margin-bottom: 20px;' class="video-wrapper-single">
+            <div class="video-title">Concept 1 - Layer 5 Head 8</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/1/layer10_head8_concept_5_tube_3.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title">Concept 2 - Layer 9 Head 12</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/2/layer7_head0_concept_5_tube_3.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title">Concept 3 - Layer 3 Head 11</div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/3/layer3_head2_concept_9_tube_2.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="video-wrapper-single">
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/1/layer10_head8_concept_5_tube_4.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/2/layer7_head0_concept_5_tube_4.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+          <div class="vertical-divider"></div>
+          <div class="video-wrapper-single">
+            <div class="video-title"></div>
+            <video autoplay loop muted controls width="100%" height="auto">
+              <source
+                src="concepts/Important/videomae/3/layer3_head2_concept_9_tube_3.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </div>
+
+        <h3 class="title is-4">Rosetta Concepts</h3>
+
+        <h2 class="title is-3">Application: Efficient Inference with Concept-Head Pruning</h2>
+          <p>
+            We propose a novel method for pruning transformer heads based on their importance. We target a
+            subset (6) of the classes in the SSv2 dataset and prune the least important heads based on CRIS.
+            We find that we can prune 30% of the heads to gain >4% in performance while reducing FLOPS, and
+            up to 50% of the heads without a significant drop in performance.
+        <div style='text-align: center;'>
+          </p>
 			<img src='img/headprune.png' style='width: 500px; height: auto;'>
 		</div>
-<!--		<img src='img/ar_result.png'>-->
-<!--		The first domain we study with our proposed approach is action recognition. A main finding in our work is that Diving48 is not as biased towards dynamics as previously thought. Interestingly, something-something-v2 guides the model to learn significantly more dynamic information than either Diving48 or Kinetics. Additionally, Diving48 results in `residual' neurons: neurons which encode neither static nor dynamic information.-->
-
-<!--		<img src='img/vos_result.png'>-->
-<!--		Our method has shown generality to other tasks such as video object segmentation (VOS). We found that 2-stream architectures with cross connections result in a better balance between static and dynamic. Originally, reciprocal (motion-to-appearance and appearance-to-motion) cross connections in RTNet showed few dynamic units. However, we showed that a model with reciprocal cross connections that does not undergo DUTS pretraining results in more dynamics. Finally, we show well known datasets used for training VOS models are static biased and find that TAOVOS may act as a better dataset to encourage the learning of dynamics.-->
-<!--		<h1 class='project_video'> Presentation and Demo </h1>-->
-<!--			<center>-->
-<!--				<iframe width="900" height="500" src="https://www.youtube.com/embed/3EWinAPTBkE">-->
-<!--				</iframe>-->
-			</center>
 
 
-
-		<h2 class='project_section'>Material</h2>
-		<div class='project_material_wrapper'>
-			<a style='margin-left:27.3%;' class='project_material' href='https://arxiv.org/abs/2206.02846'>
-				<img style='margin: 4.1% 0;' class='shadow_icon' src='img/paper.png'>
-				<p>Paper</p>
-			</a>
-			<!--
-			<a class='project_material' href='https://drive.google.com/file/d/0B_0Q7h5sp_RlX3ZoNkZSSU52cTA/view'>how
-				<img class='shadow_icon' src='img/poster_preview.png'>
-				<p>Poster</p>
-			</a>
-			<a class='project_material' href='https://drive.google.com/file/d/0Bz1dfcnrpXM-T1BjU1dhV29wQXM/view'>
-				<img style='margin: 23.4% 0;' class='shadow_icon' src='img/slide_preview.png'>
-				<p>Slides</p>
-			</a>
-			-->
-			<a class='project_material' href='https://github.com/YorkUCVIL/Static-Dynamic-Interpretability/'>
-				<img style='margin: 14.6% 0;' src='icons/github.svg'>
-				<p>Code</p>
-			</a>
-		</div>
-
-		<h2 class='project_section'>Citation</h2>
-		<div class="cite_bib">
-			@inproceedings{kowal2022deeper,<br>
-				&ensp;&ensp;&ensp; author = {Kowal, Matthew and Siam, Mennatullah and Islam, Md Amirul and Bruce, Neil and Wildes, Richard P. and Derpanis, Konstantinos G.},<br>
-				&ensp;&ensp;&ensp; title = {A Deeper Dive Into What Deep Spatiotemporal Networks Encode: Quantifying Static vs. Dynamic Information},<br>
-				&ensp;&ensp;&ensp; booktitle = {Conference on Computer Vision and Pattern Recognition},<br>
-				&ensp;&ensp;&ensp; year = {2022}<br>
-			}
-		</div>
+      </div>
+    </div>
+  </div>
+</section>
 
 
-<!--		<h2 class='project_section'>Misc</h2>-->
-<!--		<a href='appendix'>PNG images from appendix</a>-->
-		<!-- <a href=''>Slides for presentation at ECCV 2020 <i>Normalizing Flows and Invertible Neural Networks in Computer Vision</i> tutorial</a> -->
+<!--<section class="section" id="BibTeX">-->
+<!--  <div class="container is-max-desktop content">-->
+<!--    <h2 class="title">BibTeX</h2>-->
+<!--    <pre><code>@article{park2021nerfies,-->
+<!--  author    = {Park, Keunhong and Sinha, Utkarsh and Barron, Jonathan T. and Bouaziz, Sofien and Goldman, Dan B and Seitz, Steven M. and Martin-Brualla, Ricardo},-->
+<!--  title     = {Nerfies: Deformable Neural Radiance Fields},-->
+<!--  journal   = {ICCV},-->
+<!--  year      = {2021},-->
+<!--}</code></pre>-->
+<!--  </div>-->
+<!--</section>-->
 
-	</body>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            Project page designed from the <a
+              href="https://github.com/nerfies/nerfies.github.io">Nerfies webpage</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
 </html>
