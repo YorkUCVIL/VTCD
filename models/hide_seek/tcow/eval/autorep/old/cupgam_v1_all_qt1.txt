@@ -1,0 +1,45 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (4) DeepMind perception test (_d).
+# NOTE: this list was constructed looking at v98 results, so nf=30, qt=0.05.
+
+# Workflow: always keep this _all file updated, then copy to categorizations _x downstream.
+
+cgt_frames_0002_i5_f95  # no reveal at end
+cgt_frames_0002_i6_f94  # snitch reveal at end
+cgt_frames_0011_i4_f86  # no reveal at end
+cgt_frames_0011_i6_f84  # empty reveal at end
+cgt_frames_0011_i8_f82  # snitch reveal at end
+cgt_frames_0026_i7_f53  # no reveal at end
+cgt_frames_0026_i9_f51  # empty reveal at end
+cgt_frames_0061_i7_f33  # no reveal at end
+cgt_frames_0065_i4_f76  # no reveal at end
+cgt_frames_0065_i6_f74  # empty reveal at end
+cgt_frames_0065_i8_f72  # snitch reveal at end
+cgt_frames_0076_i6_f99  # no reveal at end
+cgt_frames_0076_i8_f97  # snitch reveal at end
+cgt_frames_0076_i10_f95  # both reveal at end
+cgt_frames_0092_i5_f75  # no reveal at end
+cgt_frames_0113_i9_f31  # no reveal at end
+cgt_frames_0113_i10_f30  # snitch reveal at end
+cgt_frames_0126_i6_f74  # no reveal at end
+cgt_frames_0126_i8_f72  # empty reveal at end
+cgt_frames_0126_i10_f70  # snitch reveal at end
+cgt_frames_0136_i3_f192  # no reveal at end
+cgt_frames_0136_i4_f191  # snitch reveal at end
+cgt_frames_0137_i6_f54  # no reveal at end
+cgt_frames_0137_i7_f53  # 1x empty reveal at end
+cgt_frames_0137_i8_f52  # 2x empty reveal at end
+cgt_frames_0137_i9_f51  # snitch reveal at end
+cgt_frames_0154_i6_f54  # no reveal at end
+cgt_frames_0154_i7_f53  # empty reveal at end
+cgt_frames_0154_i9_f51  # snitch reveal at end
+cgt_frames_0172_i4_f16  # no reveal at end
+cgt_frames_0172_i5_f15  # 1x snitch reveal (middle only)
+cgt_frames_0172_i7_f13  # 1x snitch reveal (middle only)
+cgt_frames_0172_i9_f11  # 1x snitch reveal (middle only)
+cgt_frames_0172_i10_f10  # 2x snitch reveal (middle & end)
+cgt_frames_0211_i6_f84  # no reveal at end
+cgt_frames_0211_i8_f82  # empty reveal at end
+cgt_frames_0211_i9_f81  # snitch reveal at end

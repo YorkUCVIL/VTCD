@@ -1,0 +1,5 @@
+
+# Level 0: No object permanence required (apart from re-identification after potential out-of-frame):
+chips1_oof_i5_f40           # 4_home (OOD: deformable)
+pump1_scan_i9_f30           # 4_home
+

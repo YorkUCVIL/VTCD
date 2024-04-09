@@ -1,0 +1,15 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+# Keep updating this as we train & test more stuff!
+# Changes from v1 to v2:
+# - Prefer qt=0 for consistency.
+
+ba8 = aot_direct_tent
+ba11 = aot_vis_tent
+ba12 = aot_cart_tent
+ba10 = aot_tent
+
+v95 = ours_vis_tent  # qt1
+v93 = ours_cart_tent  # qt1
+v110 = caus_tent
+v109 = noncaus_tent

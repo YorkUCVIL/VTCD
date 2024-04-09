@@ -1,0 +1,116 @@
+
+Oct 2022
+BVH Notes
+
+
+cd third_party/UVOv1.0
+python video2frames.py
+bash loop_v2f.sh
+
+See output at:
+/proj/vondrick3/datasets/UVOv1.0/UVO_Videos/uvo_videos_dense_frames
+
+
+cd third_party/VISOR-VIS
+python demo.py 1
+python demo.py 2
+python demo.py 3
+python demo.py 4
+
+See output at:
+/proj/vondrick/datasets/epic-kitchens/VISOR/GroundTruth-SparseAnnotations/train_vis_overlay
+etc.
+
+
+rsync -av /proj/vondrick/datasets/epic-kitchens/v2/data/P01/videos/* /proj/vondrick/datasets/epic-kitchens/VISOR/videos_flat_from_v2/
+rsync -av /proj/vondrick/datasets/epic-kitchens/v2/data/P*/videos/* /proj/vondrick/datasets/epic-kitchens/VISOR/videos_flat_from_v2/
+^ not all videos! has only 1XX.mp4, not XX.mp4
+
+
+cd third_party/epic-kitchens-download-scripts
+python epic_downloader.py --videos --output-path /proj/vondrick/datasets/epic-kitchens/all_videos/
+
+
+
+cd third_party/VISOR-FrameExtraction
+python generate_dense_frames.py 1
+python generate_dense_frames.py 2
+
+See output at:
+/proj/vondrick/datasets/epic-kitchens/VISOR/Interpolations-DenseAnnotations/val_vis
+
+
+cd third_party/VISOR-VIS
+python demo.py 5
+python demo.py 6
+
+See output at:
+/proj/vondrick/datasets/epic-kitchens/VISOR/Interpolations-DenseAnnotations/val_vis2_overlay
+etc.
+
+
+cdb1
+cd scratch/
+bash untar_v2_rgb.sh
+
+See result at:
+/proj/vondrick/datasets/epic-kitchens/v2/data/P01/rgb_frames
+etc.
+
+
+cdb3
+cd hide-seek/
+bash experimental/flat_ek_v1_rgb.sh
+bash experimental/flat_ek_v2_rgb.sh
+bash experimental/flat_ek_both_rgb.sh
+
+See result at:
+/proj/vondrick/datasets/epic-kitchens/v1/data/raw/rgb_flat
+/proj/vondrick/datasets/epic-kitchens/v2/data/rgb_flat
+
+
+cp -P /proj/vondrick/datasets/epic-kitchens/v1/data/raw/rgb_flat/* /proj/vondrick/datasets/epic-kitchens/all_rgb_flat
+cp -P /proj/vondrick/datasets/epic-kitchens/v2/data/rgb_flat/* /proj/vondrick/datasets/epic-kitchens/all_rgb_flat
+
+See result at:
+/proj/vondrick/datasets/epic-kitchens/all_rgb_flat
+
+
+cd third_party/VISOR-VIS
+python demo.py 7
+
+
+cd third_party/epic-kitchens-download-scripts
+python epic_downloader.py --videos --epic55-only --participants 14 --output-path /proj/vondrick/datasets/epic-kitchens/all_videos/
+# etc...
+
+cdb3
+cd hide-seek/third_party/epic-kitchens-download-scripts
+python epic_downloader.py --videos --epic55-only --participants 37 --output-path /proj/vondrick3/basile/epic-kitchens-temp/
+# etc...
+
+
+cd third_party/VISOR-FrameExtraction
+python generate_dense_frames.py 3
+python generate_dense_frames.py 4
+
+See output at:
+/proj/vondrick/datasets/epic-kitchens/VISOR/merged_extracted_frames
+(only ~half of the folders were without errors and look correct / have all jpg files)
+
+
+cd third_party/VISOR-VIS
+python demo.py 8
+python demo.py 9
+python demo.py 10
+python demo.py 11
+
+See output at:
+/proj/vondrick/datasets/epic-kitchens/VISOR/Interpolations-DenseAnnotations/val_vis4
+(etc.)
+
+
+cd third_party/VISOR-VOS
+python visor_to_davis.py -set val -keep_first_frame_masks_only 0 -visor_jsons_root /proj/vondrick/datasets/epic-kitchens/VISOR/GroundTruth-SparseAnnotations/annotations/ -images_root /proj/vondrick/datasets/epic-kitchens/VISOR/merged_extracted_frames/ -output_directory /proj/vondrick/datasets/epic-kitchens/VISOR/davis_out_sparse_val_attempt2
+python visor_to_davis.py -set train -keep_first_frame_masks_only 0  -visor_jsons_root /proj/vondrick/datasets/epic-kitchens/VISOR/GroundTruth-SparseAnnotations/annotations/ -images_root /proj/vondrick/datasets/epic-kitchens/VISOR/merged_extracted_frames/ -output_directory /proj/vondrick/datasets/epic-kitchens/VISOR/davis_out_sparse_train_attempt2
+

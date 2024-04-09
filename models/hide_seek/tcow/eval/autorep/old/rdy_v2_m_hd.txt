@@ -1,0 +1,17 @@
+# BVH, Nov 2022.
+# Do not spend too much time on this file, just copy from rubric/deepmind/ytbdav.
+
+
+# HD: Hands or deformable containers.
+bagduck1_move_i4_f20
+bagduck1_move_i5_f20
+bagduck1_move_i3_f50
+bagduck1_move_i4_f50
+bagduck3_recurse_i5_f15
+bagduck4_transfer_i5_f22
+handball1_wave_i3_f5
+handball2_boxoccl_i3_f30
+handball2_boxoccl_i5_f30
+handball2_boxoccl_i7_f30
+handball3_occlpick_i3_f20
+handball3_occlpick_i5_f20

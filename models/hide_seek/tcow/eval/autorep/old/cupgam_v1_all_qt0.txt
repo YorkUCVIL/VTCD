@@ -1,0 +1,43 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (4) DeepMind perception test (_d).
+# NOTE: this list was copied from _qt1.txt, and then adjusted _f value to work for qt=0! so this is probably not optimal, TODO revisit.
+
+cgt_frames_0002_i5_f100  # no reveal at end
+cgt_frames_0002_i6_f100  # snitch reveal at end
+cgt_frames_0011_i4_f90  # no reveal at end
+cgt_frames_0011_i6_f90  # empty reveal at end
+cgt_frames_0011_i8_f90  # snitch reveal at end
+cgt_frames_0026_i7_f60  # no reveal at end
+cgt_frames_0026_i9_f60  # empty reveal at end
+cgt_frames_0061_i7_f40  # no reveal at end
+cgt_frames_0065_i4_f80  # no reveal at end
+cgt_frames_0065_i6_f80  # empty reveal at end
+cgt_frames_0065_i8_f80  # snitch reveal at end
+cgt_frames_0076_i6_f105  # no reveal at end
+cgt_frames_0076_i8_f105  # snitch reveal at end
+cgt_frames_0076_i10_f105  # both reveal at end
+cgt_frames_0092_i5_f80  # no reveal at end
+cgt_frames_0113_i9_f40  # no reveal at end
+cgt_frames_0113_i10_f40  # snitch reveal at end
+cgt_frames_0126_i6_f80  # no reveal at end
+cgt_frames_0126_i8_f80  # empty reveal at end
+cgt_frames_0126_i10_f80  # snitch reveal at end
+cgt_frames_0136_i3_f195  # no reveal at end
+cgt_frames_0136_i4_f195  # snitch reveal at end
+cgt_frames_0137_i6_f60  # no reveal at end
+cgt_frames_0137_i7_f60  # 1x empty reveal at end
+cgt_frames_0137_i8_f60  # 2x empty reveal at end
+cgt_frames_0137_i9_f60  # snitch reveal at end
+cgt_frames_0154_i6_f60  # no reveal at end
+cgt_frames_0154_i7_f60  # empty reveal at end
+cgt_frames_0154_i9_f60  # snitch reveal at end
+cgt_frames_0172_i4_f20  # no reveal at end
+cgt_frames_0172_i5_f20  # 1x snitch reveal (middle only)
+cgt_frames_0172_i7_f20  # 1x snitch reveal (middle only)
+cgt_frames_0172_i9_f20  # 1x snitch reveal (middle only)
+cgt_frames_0172_i10_f20  # 2x snitch reveal (middle & end)
+cgt_frames_0211_i6_f90  # no reveal at end
+cgt_frames_0211_i8_f90  # empty reveal at end
+cgt_frames_0211_i9_f90  # snitch reveal at end

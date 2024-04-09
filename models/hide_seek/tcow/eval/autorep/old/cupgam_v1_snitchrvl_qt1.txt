@@ -1,0 +1,13 @@
+
+cgt_frames_0002_i6_f94  # snitch reveal at end
+cgt_frames_0011_i8_f82  # snitch reveal at end
+cgt_frames_0065_i8_f72  # snitch reveal at end
+cgt_frames_0076_i8_f97  # snitch reveal at end
+cgt_frames_0113_i10_f30  # snitch reveal at end
+cgt_frames_0126_i10_f70  # snitch reveal at end
+cgt_frames_0136_i4_f191  # snitch reveal at end
+cgt_frames_0137_i9_f51  # snitch reveal at end
+cgt_frames_0154_i9_f51  # snitch reveal at end
+cgt_frames_0172_i5_f15  # 1x snitch reveal (middle only)
+cgt_frames_0172_i10_f10  # 2x snitch reveal (middle & end)
+cgt_frames_0211_i9_f81  # snitch reveal at end

@@ -1,0 +1,13 @@
+
+# Level 1: Simple active or passive occlusion or containment:
+teaduck1_i5_f50             # 2_teaduck
+teaduck2_i5_f15             # 2_teaduck
+teaduck3_reveal_i5_f15      # 2_teaduck
+teaduck4_reveal_i5_f15      # 2_teaduck
+teaduck5_cammove_i5_f15     # 2_teaduck (OOD: camera)
+teaduck6_teamove_i5_f15     # 2_teaduck
+mugduck1_mugmove_i4_f10     # 3_mugduck (not L2: cutoff!)
+mugduck2_reveal_i5_f20      # 3_mugduck
+mugduck3_reveal_i3_f15      # 3_mugduck
+pumpcookie1_reveal_i6_f20   # 4_home
+mugduck5_stay_i5_f20        # 5_bagmugduck 

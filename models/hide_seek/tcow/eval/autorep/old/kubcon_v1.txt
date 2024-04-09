@@ -1,0 +1,6 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (1) Kubric random test (_t).
+# Just consider all and put as is in summary.
+kubcon_v10,  # Match in every row via scene_dn.

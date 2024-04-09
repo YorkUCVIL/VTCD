@@ -1,0 +1,38 @@
+# BVH, Nov 2022.
+# Do not spend too much time on this file, just copy from rubric/deepmind/ytbdav.
+
+
+# NL: Shaky or non-linear camera motion.
+teaduck5_cammove_i5_f15
+teaduck5_cammove_i7_f15
+chips1_oof_i5_f40
+chips1_oof_i9_f40
+
+cgt_frames_0113_i2_f40 
+cgt_frames_0113_i5_f40 
+cgt_frames_0113_i7_f40 
+cgt_frames_0113_i10_f40
+cgt_frames_0136_i2_f195
+cgt_frames_0136_i4_f195
+cgt_frames_0137_i1_f60 
+cgt_frames_0137_i3_f60 
+cgt_frames_0137_i5_f60 
+cgt_frames_0137_i7_f60 
+cgt_frames_0154_i2_f60 
+cgt_frames_0154_i4_f60 
+cgt_frames_0154_i5_f60 
+cgt_frames_0154_i7_f60 
+cgt_frames_0154_i9_f60 
+cgt_frames_0061_i2_f40 
+cgt_frames_0061_i4_f40 
+cgt_frames_0061_i5_f40 
+cgt_frames_0061_i6_f40 
+cgt_frames_0061_i7_f40 
+
+val_bmx-trees_i3_f3       
+train_bmx-bumps_i3_f0     
+train_scooter-board_i3_f0 
+val_3f2012d518_i3_f8      
+val_0a49f5265b_i3_f6      
+val_1b85035216_i5_f6      
+val_7e625db8c4_i3_f0    

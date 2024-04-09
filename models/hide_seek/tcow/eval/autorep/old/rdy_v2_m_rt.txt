@@ -1,0 +1,15 @@
+# BVH, Nov 2022.
+# Do not spend too much time on this file, just copy from rubric/deepmind/ytbdav.
+
+
+# RT: Recursive (double) containment or occluded container or transferring containment.
+bagduck3_recurse_i5_f15
+bagduck4_transfer_i5_f22
+plantcupball1_i3_f35
+plantcupball1_i5_f35
+plantcupball1_i7_f35
+plantcupball2_i3_f25
+plantcupball2_i5_f25
+plantcupball2_i7_f25
+plantcupball2_i8_f25
+plantcupball3_i5_f45

@@ -1,0 +1,37 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (5) Davis (_y).
+# NOTE: this list was copied from _qt1.txt, and then adjusted _f value to work for qt=0! so this is probably not optimal, TODO revisit.
+
+test_giant-slalom_i4_f5
+test_people-sunset_i1_f6
+val_bmx-trees_i2_f3
+val_india1_i2_f3
+val_india2_i2_f3
+val_india3_i2_f3
+val_pigs_i2_f4
+val_libby_i1_f7
+
+# (5) YouTube-VOS (_y).
+# NOTE: this list was copied from _qt1.txt, and then adjusted _f value to work for qt=0! so this is probably not optimal, TODO revisit.
+
+val_0a49f5265b_i3_f6
+val_0b97736357_i3_f20
+val_0c04834d61_i2_f10
+val_0e4068b53f_i2_f35
+val_1b85035216_i5_f6
+val_1bcd8a65de_i2_f30
+val_1c1847cf16_i3_f10
+val_1e6efb0b5f_i2_f14
+val_1eddb188fb_i2_f30
+val_2e21c7e59b_i3_f10
+val_3b72dc1941_rev_i1_f4
+val_3f4bacb16a_i2_f6
+val_3f4bacb16a_i2_f12
+val_3f4bacb16a_i2_f22
+val_3f2012d518_i4_f8
+val_4aed021c38_i4_f4
+val_4bef684040_i3_f20
+
+# TODO more

@@ -1,0 +1,11 @@
+
+# Level 2: Moving container and/or snitch during occlusion:
+mugduck4_mugmove_i5_f40     # 3_mugduck
+multicupduck1_game_i5_f30   # 3_mugduck; undecided
+multicupduck1_game_i7_f30   # 3_mugduck; undecided
+multicupduck1_game_i9_f30   # 3_mugduck; undecided
+mugduck7_shuffle_i6_f30     # 5_bagmugduck
+handball1_wave_i3_f5        # 6_handball (OOD: hands)
+lightball4_occl1x_i9_f40    # 7_ballbounce (OOD: bounce)
+lightball5_occl2x_i7_f30    # 7_ballbounce (OOD: bounce)
+lightball6_occl4x_i10_f15   # 7_ballbounce (OOD: bounce)

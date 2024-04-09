@@ -1,0 +1,16 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+# Keep updating this as we train & test more stuff!
+# Changes from v2 to v3:
+# - Select newer model versions with much more consistent hyperparameters.
+# - In particular, (nf=30, qt=0) everywhere, also for autorep v2 guides.
+
+ba8 = aot_plug
+ba10 = aot
+ba11 = aot_vis
+ba12 = aot_cart
+
+v111 = our_caus
+v112 = our_noncaus
+v113 = our_vis_caus
+v114 = our_cart_caus

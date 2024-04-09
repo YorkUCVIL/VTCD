@@ -1,0 +1,6 @@
+# BVH, Nov 2022.
+# Do not spend too much time on this file, just copy from rubric/deepmind/ytbdav.
+
+
+# SA: Significant ambiguity.
+handball3_occlpick_i5_f20

@@ -1,0 +1,15 @@
+
+cgt_frames_0002_i5_f95  # no reveal at end
+cgt_frames_0011_i4_f86  # no reveal at end
+cgt_frames_0026_i7_f53  # no reveal at end
+cgt_frames_0061_i7_f33  # no reveal at end
+cgt_frames_0065_i4_f76  # no reveal at end
+cgt_frames_0076_i6_f99  # no reveal at end
+cgt_frames_0092_i5_f75  # no reveal at end
+cgt_frames_0113_i9_f31  # no reveal at end
+cgt_frames_0126_i6_f74  # no reveal at end
+cgt_frames_0136_i3_f192  # no reveal at end
+cgt_frames_0137_i6_f54  # no reveal at end
+cgt_frames_0154_i6_f54  # no reveal at end
+cgt_frames_0172_i4_f16  # no reveal at end
+cgt_frames_0211_i6_f84  # no reveal at end

@@ -1,0 +1,14 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+# Keep updating this as we train & test more stuff!
+# Later abandoned because inconsistent qt.
+
+ba8 = aot_direct_tent  # qt0
+ba6 = aot_vis_tent  # qt1
+ba12 = aot_cart_tent  # qt0
+ba9 = aot_tent  # qt0
+
+v95 = ours_vis_tent  # qt1
+v93 = ours_cart_tent  # qt1
+v104 = caus_tent  # qt0
+v107 = noncaus_tent  # qt1

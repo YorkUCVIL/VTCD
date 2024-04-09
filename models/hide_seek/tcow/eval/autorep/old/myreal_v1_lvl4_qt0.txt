@@ -1,0 +1,10 @@
+
+# Level 4: Container gets occluded and/or occluder gets contained and/or significant irreducible ambiguity:
+mugduck6_shuffle_i6_f30     # 5_bagmugduck
+handball2_boxoccl_i5_f30    # 6_handball; undecided (OOD: hands)
+handball2_boxoccl_i7_f30    # 6_handball; undecided (OOD: hands)
+handball3_occlpick_i6_f20   # 6_handball; undecided (OOD: hands)
+plantcupball1_i5_f35        # 8_plantcupball; undecided
+plantcupball1_i7_f35        # 8_plantcupball; undecided
+plantcupball2_i7_f25        # 8_plantcupball
+plantcupball3_i5_f45        # 8_plantcupball

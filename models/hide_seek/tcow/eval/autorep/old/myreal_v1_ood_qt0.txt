@@ -1,0 +1,14 @@
+
+# OOD-Marker (separate from Levels): Hands/arms involved, bouncy/deformable/transparent objects, shaky/non-linear camera motion, weird physics:
+teaduck5_cammove_i5_f15
+chips1_oof_i5_f40
+bagduck1_move_i5_f50
+bagduck3_recurse_i5_f15
+bagduck4_transfer_i5_f22
+handball1_wave_i3_f5
+handball2_boxoccl_i5_f30
+handball2_boxoccl_i7_f30
+handball3_occlpick_i6_f20
+lightball4_occl1x_i9_f40
+lightball5_occl2x_i7_f30
+lightball6_occl4x_i10_f15

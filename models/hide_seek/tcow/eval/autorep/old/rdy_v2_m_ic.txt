@@ -1,0 +1,75 @@
+# BVH, Nov 2022.
+# Do not spend too much time on this file, just copy from rubric/deepmind/ytbdav.
+
+
+# TODO: IOT marker -- separate, merge, or ignore altogether?
+# in represent v3: currently ignored!
+
+
+# IC: At least two identical containers.
+multicupduck1_game_i3_f30
+multicupduck1_game_i5_f30
+multicupduck1_game_i7_f30
+multicupduck1_game_i9_f30
+
+cgt_frames_0092_i2_f80      # no movement yet
+cgt_frames_0092_i4_f80
+cgt_frames_0092_i7_f80
+cgt_frames_0113_i2_f40      # no movement yet, also NL
+cgt_frames_0113_i5_f40      # also NL
+cgt_frames_0113_i7_f40      # also NL
+cgt_frames_0113_i10_f40     # reveal labeled snitch only, also NL
+cgt_frames_0126_i2_f80      # no movement yet
+cgt_frames_0126_i5_f80
+cgt_frames_0126_i7_f80
+cgt_frames_0126_i8_f80      # reveal 1/2 empty only
+cgt_frames_0126_i10_f80     # reveal 1/2 empty + labeled snitch
+cgt_frames_0136_i2_f195     # only empty movement (still implies MC due to IC), also NL
+cgt_frames_0136_i4_f195     # reveal labeled snitch only, also NL
+cgt_frames_0137_i1_f60      # no movement yet, also NL
+cgt_frames_0137_i3_f60      # also NL
+cgt_frames_0137_i5_f60      # also NL
+cgt_frames_0137_i7_f60      # reveal 2/2 empty only, also NL
+cgt_frames_0154_i2_f60      # only unlabeled movement (still implies MC), also NL
+cgt_frames_0154_i4_f60      # also NL
+cgt_frames_0154_i5_f60      # also NL
+cgt_frames_0154_i7_f60      # reveal empty only, also NL
+cgt_frames_0154_i9_f60      # reveal empty + labeled snitch, also NL
+cgt_frames_0172_i2_f20      # only unlabeled movement (still implies MC)
+cgt_frames_0172_i3_f20
+cgt_frames_0172_i4_f20
+cgt_frames_0172_i5_f20      # reveal empty + labeled snitch at once at end
+cgt_frames_0172_i7_f20      # reveal empty + labeled snitch in middle, then keep shuffling
+
+cgt_frames_0061_i2_f40      # no movement yet, also NL
+cgt_frames_0061_i4_f40      # also NL
+cgt_frames_0061_i5_f40      # also NL
+cgt_frames_0061_i6_f40      # also NL
+cgt_frames_0061_i7_f40      # also NL
+cgt_frames_0065_i2_f80      # only unlabeled movement (still implies MC)
+cgt_frames_0065_i5_f80
+cgt_frames_0065_i8_f80      # reveal empty + labeled snitch
+cgt_frames_0076_i2_f105     # no movement yet
+cgt_frames_0076_i8_f105     # reveal labeled snitch only
+cgt_frames_0211_i1_f90      # no movement yet
+cgt_frames_0211_i4_f90
+cgt_frames_0211_i7_f90      # reveal empty only
+cgt_frames_0211_i9_f90      # reveal empty + labeled snitch
+
+
+# IOT: Identical occluder & snitch / occludee / target.
+# test_salsa1_i1_f0      
+# test_salsa2_i2_f0      
+# test_salsa3_i3_f0      
+# train_lindy-hop1_i2_f0 
+# train_lindy-hop2_i2_f1 
+# train_lindy-hop3_i2_f0 
+# val_india1_i2_f3       
+# val_india2_i2_f3       
+# val_india3_i2_f3       
+# val_pigs_i2_f4         
+# val_0e4068b53f_i2_f35  
+# val_3f4bacb16a_1_i1_f6 
+# val_4bef684040_i4_f20  
+# val_5d2020eff8_i3_f0   
+# val_7e625db8c4_i3_f0   

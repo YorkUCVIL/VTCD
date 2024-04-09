@@ -1,0 +1,54 @@
+
+=> lightest:
+Perricone_MD_No_Lipstick_Lipstick: 3.0
+Perricone_MD_No_Mascara_Mascara: 3.1
+Kotobuki_Saucer_Dragon_Fly: 5.2
+Ortho_Forward_Facing: 9.3
+Ecoforms_Garden_Pot_GP16ATurquois: 16.2
+Ecoforms_Plant_Container_S24NATURAL: 17.5
+NESCAFE_NESCAFE_TC_STKS_DECAF_6_CT: 17.5
+
+=> heaviest:
+Weisshai_Great_White_Shark: 42862.5
+ProSport_Harness_to_Booster_Seat: 10827.5
+Elephant: 7490.0
+Hilary: 5317.5
+TriStar_Products_PPC_Power_Pressure_Cooker_XL_in_Black: 4525.0
+VANS_FIRE_ROASTED_VEGGIE_CRACKERS_GLUTEN_FREE: 4422.5
+Pepsi_Cola_Caffeine_Free_12_12_fl_oz_355_ml_cans_144_fl_oz_426_lt: 3762.5
+
+=> least dense:
+Ortho_Forward_Facing: 4.7
+Poise_Ultimate_Pads_Long: 7.5
+Perricone_MD_No_Mascara_Mascara: 11.5
+Perricone_MD_No_Lipstick_Lipstick: 18.5
+Jansport_School_Backpack_Blue_Streak: 18.6
+Lovable_Huggable_Cuddly_Boutique_Teddy_Bear_Beige: 21.5
+Sootheze_Toasty_Orca: 26.0
+
+=> most dense:
+Weisshai_Great_White_Shark: 349172.2
+Granimals_20_Wooden_ABC_Blocks_Wagon_85VdSftGsLi: 31457.5
+Lalaloopsy_Peanut_Big_Top_Tricycle: 25737.9
+Footed_Bowl_Sand: 21171.1
+ProSport_Harness_to_Booster_Seat: 18346.6
+3D_Dollhouse_Lamp: 14319.8
+CoQ10_BjTLbuRVt1t: 14250.5
+
+=> least mass increase:
+Ortho_Forward_Facing: 4.7
+Poise_Ultimate_Pads_Long: 7.5
+Perricone_MD_No_Mascara_Mascara: 11.5
+Perricone_MD_No_Lipstick_Lipstick: 18.5
+Jansport_School_Backpack_Blue_Streak: 18.6
+Lovable_Huggable_Cuddly_Boutique_Teddy_Bear_Beige: 21.5
+Sootheze_Toasty_Orca: 26.0
+
+=> most mass increase:
+Weisshai_Great_White_Shark: 349172.2
+Granimals_20_Wooden_ABC_Blocks_Wagon_85VdSftGsLi: 31457.5
+Lalaloopsy_Peanut_Big_Top_Tricycle: 25737.9
+Footed_Bowl_Sand: 21171.1
+ProSport_Harness_to_Booster_Seat: 18346.6
+3D_Dollhouse_Lamp: 14319.8
+CoQ10_BjTLbuRVt1t: 14250.5

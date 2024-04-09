@@ -1,0 +1,7 @@
+Blue_Jasmine_Includes_Digital_Copy_UltraViolet_DVD,[0.09 0.09 0.09 0.09]
+Brisk_Iced_Tea_Lemon_12_12_fl_oz_355_ml_cans_144_fl_oz_426_lt,[2.7  2.72 2.7  2.72]
+Epson_LabelWorks_LC5WBN9_Tape_reel_labels_071_x_295_Roll_Black_on_White,[0.1   0.065 0.07  0.1  ]
+Frozen_Scrabble_Jr,[1.2  1.2  1.36 1.24]
+Horse_Dreams_Pencil_Case,[0.065 0.065 0.09  0.05 ]
+Nestle_Carnation_Cinnamon_Coffeecake_Kit_1913OZ,[0.537 0.535 0.5   0.5  ]
+Olive_Kids_Robots_Pencil_Case,[0.04 0.1  0.09 0.05]

@@ -1,0 +1,37 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (5) Davis (_y).
+# NOTE: this list was constructed looking at v98 results, so nf=30, qt=0.05.
+
+test_giant-slalom_i4_f1
+test_people-sunset_i1_f5
+val_bmx-trees_i2_f1
+val_india1_i2_f1
+val_india2_i2_f1
+val_india3_i2_f1
+val_pigs_i2_f2
+val_libby_i1_f6
+
+# (5) YouTube-VOS (_y).
+# NOTE: this list was constructed looking at v98 results, so nf=30, qt=0.05.
+
+val_0a49f5265b_i3_f3
+val_0b97736357_i3_f17
+val_0c04834d61_i2_f8
+val_0e4068b53f_i2_f33
+val_1b85035216_i5_f1
+val_1bcd8a65de_i2_f28
+val_1c1847cf16_i3_f7
+val_1e6efb0b5f_i2_f12
+val_1eddb188fb_i2_f28
+val_2e21c7e59b_i3_f7
+val_3b72dc1941_rev_i1_f3
+val_3f4bacb16a_i2_f4
+val_3f4bacb16a_i2_f10
+val_3f4bacb16a_i2_f20
+val_3f2012d518_i4_f4
+val_4aed021c38_i4_f0
+val_4bef684040_i3_f17
+
+# TODO more

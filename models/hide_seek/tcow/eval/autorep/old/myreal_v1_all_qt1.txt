@@ -1,0 +1,53 @@
+# BVH, Oct 2022.
+# See pick_represent.py for how this is processed.
+
+# (3) Real benchmark (_r).
+# NOTE: this list was copied from myreal_v1_all_qt0, and then adjusted _f value to work for qt=0.05! so this is probably not optimal, but tentatively used for older models that have qt>0.
+
+
+# Level 0: No object permanence required (apart from re-identification after potential out-of-frame):
+chips1_oof_i5_f35           # 4_home (OOD: deformable)
+pump1_scan_i9_f21           # 4_home
+
+
+# Level 1: Simple active or passive occlusion or containment:
+teaduck1_i5_f45             # 2_teaduck
+teaduck2_i5_f10             # 2_teaduck
+teaduck3_reveal_i5_f10      # 2_teaduck
+teaduck4_reveal_i5_f10      # 2_teaduck
+teaduck5_cammove_i5_f10     # 2_teaduck (OOD: camera)
+teaduck6_teamove_i5_f10     # 2_teaduck
+mugduck1_mugmove_i4_f6     # 3_mugduck (not L2: cutoff!)
+mugduck2_reveal_i5_f15      # 3_mugduck
+mugduck3_reveal_i3_f12      # 3_mugduck
+pumpcookie1_reveal_i6_f14   # 4_home
+mugduck5_stay_i5_f15        # 5_bagmugduck 
+
+
+# Level 2: Moving container and/or snitch during occlusion:
+mugduck4_mugmove_i5_f35     # 3_mugduck
+multicupduck1_game_i5_f25   # 3_mugduck; undecided
+multicupduck1_game_i7_f23   # 3_mugduck; undecided
+multicupduck1_game_i9_f21   # 3_mugduck; undecided
+mugduck7_shuffle_i6_f24     # 5_bagmugduck
+handball1_wave_i3_f2        # 6_handball (OOD: hands)
+lightball4_occl1x_i9_f31    # 7_ballbounce (OOD: bounce)
+lightball5_occl2x_i7_f23    # 7_ballbounce (OOD: bounce)
+lightball6_occl4x_i10_f5   # 7_ballbounce (OOD: bounce)
+
+
+# Level 3: Double and/or transferring containment or occlusion:
+bagduck1_move_i5_f45        # 5_bagmugduck (OOD: paper bags)
+bagduck3_recurse_i5_f10     # 5_bagmugduck (OOD: paper bags)
+bagduck4_transfer_i5_f17    # 5_bagmugduck (OOD: paper bags)
+
+
+# Level 4: Container gets occluded and/or occluder gets contained and/or significant irreducible ambiguity:
+mugduck6_shuffle_i6_f24     # 5_bagmugduck
+handball2_boxoccl_i5_f25    # 6_handball; undecided (OOD: hands)
+handball2_boxoccl_i7_f23    # 6_handball; undecided (OOD: hands)
+handball3_occlpick_i6_f14   # 6_handball; undecided (OOD: hands)
+plantcupball1_i5_f30        # 8_plantcupball; undecided
+plantcupball1_i7_f28        # 8_plantcupball; undecided
+plantcupball2_i7_f18        # 8_plantcupball
+plantcupball3_i5_f40        # 8_plantcupball
