@@ -787,6 +787,26 @@
 			<img src='img/headprune.png' style='width: 500px; height: auto;'>
 		</div>
 
+        <h2 style='margin-top: 60px;' class="title is-3">Application: Zero-Shot Semi-VOS with VTCD</h2>
+          <p>
+            We apply VTCD for the task of semi-supervised video object segmentation and evaluate the discovered concepts on the DAVIS’16
+            video-object segmentation benchmark. To this end, we run VTCD
+            on the training set and select concepts that have the highest
+            overlap with the groundtruth tracks. We then use them to
+            track new objects on the validation set. Not that are evaluating representations
+            that are not directly trained for VOS. While solid performance is achieved
+            by all representations, segmentation accuracy is limited by
+            the low resolution of the concept masks. To mitigate this,
+            we introduce a simple refinement step that samples random
+            points inside the masks to prompt Segment Anything Model (SAM). The resulting
+            approach, shown as ‘VTCD + SAM’, significantly improves
+            performance. We anticipate that future developments in
+            video representation learning will automatically lead to better VOS methods with the help of VTCD.
+        <div style='text-align: center;'>
+          </p>
+			<img src='img/VOS_Results.png' style='width: 500px; height: auto;'>
+		</div>
+
 
       </div>
     </div>
