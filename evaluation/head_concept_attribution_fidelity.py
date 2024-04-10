@@ -1,7 +1,7 @@
 
 import os
 import sys
-sys.path.append('/home/ubuntu/video_concept_discovery/')
+sys.path.append('/home/ubuntu/VTCD/')
 import time
 
 import torch
@@ -23,30 +23,8 @@ from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
 import models.hide_seek.tcow as tcow
 
 def main(args):
-    '''
-    Compute concept importance attribution.
-    Args:
-        args: arguments from command line
-
-    Returns:
-        results: dictionary of results
-
-    pseudocode:
-    load dataset
-
-    # Gradient-based
-    for each video, target in dataset:
-        load model
-        model.train()
-        out = model(video)
-        loss = criterion(out, target)
-        loss.backward()
-        for head in model:
-            head_importance = head.grad * head
-    '''
     global video
-    results_path = 'results/{}/ConceptHeadImporance_HW_{}Masks{}.pkl'.format(args.exp_name, args.num_masks, args.results_name)
-    # results_path = 'results/{}/ConceptHeadImporance_HW_{}Masks.pkl'.format(args.exp_name, args.num_masks, num_videos)
+    results_path = 'results/{}/ConceptHeadImportance_HW_{}Masks{}.pkl'.format(args.exp_name, args.num_masks, args.results_name)
     print('Results will be saved to {}'.format(results_path))
     if args.use_saved_results and not args.recompute_performance_curves:
         if os.path.exists(results_path):
@@ -393,7 +371,7 @@ def main(args):
         pickle.dump(results, f)
 
     # plot results
-    # plot_results(args, results)
+    plot_results(args, results)
 
 
 def plot_results(args, results):
@@ -426,7 +404,9 @@ def plot_results(args, results):
     plt.ylabel('Snitch mIoU' if 'timesformer' in args.model else 'Acc')
     plt.legend()
     plt.title('Concept removal performance curve ({} Masks)'.format(args.num_masks))
-    plt.show()
+    # save plot
+    plt.savefig('evaluation/concept_importance/cris/{}_{}Masks.png'.format(args.exp_name, args.num_masks))
+    # plt.show()
 
 
 def compute_iou(v1, v2):

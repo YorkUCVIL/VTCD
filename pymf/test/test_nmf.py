@@ -41,7 +41,6 @@ class TestNMF:
         assert_almost_equal(0.0, rec, decimal=1)
 
     def test_nmfals(self):
-        # (todo) based on the initialization this test can fail
         mdl = NMFALS(self.data, num_bases=2)
 
         # nmf forms a cone in the input space, but it is unlikely to hit the

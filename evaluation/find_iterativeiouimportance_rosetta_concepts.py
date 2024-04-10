@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('/home/ubuntu/video_concept_discovery/')
+sys.path.append('/home/ubuntu/VTCD/')
 
 import pickle
 import json
@@ -238,7 +238,6 @@ def main(args):
     results_path = os.path.join(rosetta_dir, args.results_name + '_rosetta_concepts.json')
     print('Save path: {}'.format(results_path))
 
-
     if 'rsoafs' in args.results_name:
         args.exp_name =  ['videomae_ssv2_pre_keys_rsoafs_v2', 'videomae_ssv2_keys_rsoafs_v2', 'Occ_Keys_OG_rsoafs', 'Intern_Keys_SSv2_rsoafs']
         args.importance_files = ['ConceptHeadImporance_HW_4000MasksRatio095.pkl', 'ConceptHeadImporance_HW_4000Masks.pkl', 'ConceptHeadImporance_HW_8000Masks.pkl', 'ConceptHeadImporance_HW_4000Masks.pkl']
@@ -335,8 +334,6 @@ def main(args):
             print('Saving results to {}...'.format(results_path_no_repeat))
             with open(results_path_no_repeat, 'w') as f:
                 json.dump(sorted_rosetta_concepts_no_repeats, f)
-
-    exit()
 
     # no repeats for three tuples
     experiment_combinations = n_tuple_combinations(args.exp_name, 3)
@@ -644,9 +641,6 @@ def main(args):
                 if model_concept not in model_concepts_1 and model_concept not in model_concepts_2 and model_concept not in model_concepts_3:
                     all_concepts[model_name].remove(concept)
 
-
-    # exit()
-
     if len(args.exp_name) > 3:
         print('Filtering four tuples...')
         # Iterative IoU filtering
@@ -887,7 +881,7 @@ def get_all_concepts(vcd, args):
                             break
 
                     if psutil.virtual_memory().percent > 90:
-                        print('Memory usage too high, clearing memory...')
+                        print('Memory usage too high, clearing memory and exiting...')
                         gc.collect()
                         torch.cuda.empty_cache()
                         exit()

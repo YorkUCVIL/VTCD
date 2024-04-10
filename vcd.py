@@ -38,74 +38,19 @@ class VideoConceptDiscovery(object):
     """Discovering video concepts.
     """
 
-    def __init__(self,
-            args,
-            model,
-            frame_height=240,
-            frame_width=320
-            ):
-
+    def __init__(self, args, model,):
         self.args = args
         self.model = model
-        self.frame_height = frame_height
-        self.frame_width = frame_width
 
-        # todo: move to the loading of the model and then just initialize things here
-        # transforms
-        if 'vidmae' in self.args.model:
-            self.frame_width = self.model.default_cfg['input_size'][1]
-            self.frame_height = self.model.default_cfg['input_size'][2]
-            self.normalize = torchvision.transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225])
-        elif 'svt' in self.args.model or 'tf_og' in self.args.model:
-            self.frame_width = 224
-            self.frame_height = 224
-            self.normalize = torchvision.transforms.Normalize(
-                mean=[0.45, 0.45, 0.45],
-                std=[0.225, 0.225, 0.225])
-        elif 'jepa' in self.args.model:
-            self.frame_width = 224
-            self.frame_height = 224
-            self.normalize = torchvision.transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225])
-        elif 'intern' in self.args.model:
-            self.frame_width = 224
-            self.frame_height = 224
+        # initialize transforms depending on the model
+        self.initialize_transforms()
 
-        # initialize transforms
-        self.post_resize_smooth = torchvision.transforms.Resize(
-            (self.frame_height, self.frame_width),
-            interpolation=torchvision.transforms.InterpolationMode.BILINEAR)
-
-        self.post_resize_nearest = torchvision.transforms.Resize(
-            (self.frame_height, self.frame_width),
-            interpolation=torchvision.transforms.InterpolationMode.NEAREST)
-
-        self.pre_upsample = torch.nn.Upsample(
-            size=(int(self.model.num_frames*self.args.temporal_resize_factor), int(self.frame_height*args.spatial_resize_factor), int(self.frame_width*args.spatial_resize_factor)),
-            mode='trilinear', align_corners=True)
-
-        self.post_upsample = torch.nn.Upsample(
-            size=(int(self.model.num_frames), int(self.frame_height), int(self.frame_width)),
-            mode='nearest')
-
-        # set up multiclass setting
-        if len(args.target_class_idxs) > 1:
-            self.multiclass = True
-            self.args.target_class = '_'.join([str(x) for x in sorted(args.target_class_idxs)])
-        else:
-            self.multiclass = False
-
-
-        # todo: figure out cacheing of dataset. Probably only want to do it for kubric
-        # load dataset
+        # load dataset (optionally can be cached)
         if args.dataset == 'kubric':
             if not 'timesformer' in self.args.model:
-                cached_file_path = os.path.join(self.args.kubric_path, 'val', '{}Frames_{}_Max{}.pkl'.format(model.num_frames, self.args.cache_name, args.max_num_videos))
+                cached_file_path = os.path.join(self.args.kubric_path, 'val', '{}Frames_Max{}.pkl'.format(model.num_frames, args.max_num_videos))
             else:
-                cached_file_path = os.path.join(self.args.kubric_path, 'val', '{}_Max{}.pkl'.format(self.args.cache_name, self.args.max_num_videos))
+                cached_file_path = os.path.join(self.args.kubric_path, 'val', 'Max{}.pkl'.format(self.args.max_num_videos))
             self.cached_file_path = cached_file_path
             if os.path.exists(cached_file_path) and not self.args.force_reload_videos:
                 try:
@@ -116,11 +61,8 @@ class VideoConceptDiscovery(object):
                     self.dataset = self.load_kubric_videos()
             else:
                 self.dataset = self.load_kubric_videos()
-                # save pkl file
-                with open(cached_file_path, 'wb') as f:
-                    pickle.dump(self.dataset, f)
         elif args.dataset == 'ssv2':
-            cached_file_path = os.path.join(self.args.ssv2_path, '{}_{}_Max{}_{}.pkl'.format(self.args.cache_name, self.args.target_class, self.args.max_num_videos, 'train' if self.args.use_train else 'val')).replace(' ', '_')
+            cached_file_path = os.path.join(self.args.ssv2_path, '{}_Max{}_{}.pkl'.format(self.args.target_class, self.args.max_num_videos, 'train' if self.args.use_train else 'val')).replace(' ', '_')
             print(cached_file_path)
             self.cached_file_path = cached_file_path
             if os.path.exists(cached_file_path) and not self.args.force_reload_videos:
@@ -136,7 +78,7 @@ class VideoConceptDiscovery(object):
                 with open(cached_file_path, 'wb') as f:
                     pickle.dump(self.dataset, f)
         elif 'davis16' in args.dataset:
-            cached_file_path = os.path.join(self.args.davis16_path, '{}_Max{}.pkl'.format(self.args.cache_name, self.args.max_num_videos)).replace(' ', '_')
+            cached_file_path = os.path.join(self.args.davis16_path, 'Max{}.pkl'.format(self.args.max_num_videos)).replace(' ', '_')
             print(cached_file_path)
             self.cached_file_path = cached_file_path
             if os.path.exists(cached_file_path) and not self.args.force_reload_videos:
@@ -154,6 +96,47 @@ class VideoConceptDiscovery(object):
         else:
             raise NotImplementedError
 
+        # save pkl file
+        if args.dataset_cache:
+            with open(cached_file_path, 'wb') as f:
+                pickle.dump(self.dataset, f)
+
+    def initialize_transforms(self):
+        if 'vidmae' in self.args.model:
+            self.frame_width = self.model.default_cfg['input_size'][1]
+            self.frame_height = self.model.default_cfg['input_size'][2]
+            self.normalize = torchvision.transforms.Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225])
+        elif 'intern' in self.args.model:
+            self.frame_width = 224
+            self.frame_height = 224
+        elif 'timesformer' in self.args.model:
+            self.frame_width = 320
+            self.frame_height = 240
+
+        # resize transformers for segmentation masks
+        self.post_resize_smooth = torchvision.transforms.Resize(
+            (self.frame_height, self.frame_width),
+            interpolation=torchvision.transforms.InterpolationMode.BILINEAR)
+        self.post_resize_nearest = torchvision.transforms.Resize(
+            (self.frame_height, self.frame_width),
+            interpolation=torchvision.transforms.InterpolationMode.NEAREST)
+
+        # resize transformers for video
+        self.pre_upsample = torch.nn.Upsample(
+            size=(int(self.model.num_frames*self.args.temporal_resize_factor), int(self.frame_height*self.args.spatial_resize_factor), int(self.frame_width*self.args.spatial_resize_factor)),
+            mode='trilinear', align_corners=True)
+        self.post_upsample = torch.nn.Upsample(
+            size=(int(self.model.num_frames), int(self.frame_height), int(self.frame_width)),
+            mode='nearest')
+
+        # set up multiclass setting
+        if len(self.args.target_class_idxs) > 1:
+            self.multiclass = True
+            self.args.target_class = '_'.join([str(x) for x in sorted(self.args.target_class_idxs)])
+        else:
+            self.multiclass = False
 
     def load_davis16_videos(self, sampling_rate=2, num_frames=16):
         # get video names
@@ -230,6 +213,7 @@ class VideoConceptDiscovery(object):
         else:
             cls_idx = label_dict[self.args.target_class]
             self.target_label_id = int(cls_idx)
+
         # open validation file
         if self.args.use_train:
             data_path = os.path.join(self.args.ssv2_path, 'something-something-v2-train.json')
@@ -265,19 +249,13 @@ class VideoConceptDiscovery(object):
                 vr = VideoReader(video, num_threads=1, ctx=cpu(0),width = self.frame_width, height = self.frame_height)
             except:
                 continue
-            # a file like object works as well, for in-memory decoding
-
-            # 1. the simplest way is to directly access frames
             frames = []
             for i in range(len(vr)):
-                # the video reader will handle seeking and skipping in the most efficient manner
                 frame = vr[i]
                 try:
                     frames.append(torch.tensor(frame.asnumpy()))
                 except:
                     frames.append(torch.tensor(frame))
-
-
 
             # sample frames every self.model.args.sampling_rate frames
             frames = frames[::self.model.sampling_rate]
@@ -288,13 +266,12 @@ class VideoConceptDiscovery(object):
             try:
                 if 'timesformer' in self.args.model:
                     # open up labels
-                    label_path = os.path.join(self.args.ssv2_path, 'first_frame_labels', self.args.target_class, data[0].split('/')[-1].split('.')[0],'0_gt.png').replace(' ', '_')
+                    label_path = os.path.join('ssv2_labels', 'first_frame_labels', self.args.target_class, data[0].split('/')[-1].split('.')[0],'0_gt.png').replace(' ', '_')
                     label = np.array(Image.open(label_path))[:,:,:3]
                     label_binary = torch.tensor(np.where(label.sum(2)==765, 0, 1)).unsqueeze(0).unsqueeze(0)
                     zeros = torch.zeros((1, self.model.num_frames-1, label_binary.shape[-2] , label_binary.shape[-1]))
                     label_binary = torch.cat([label_binary, zeros], dim=1).unsqueeze(0)
                     self.seeker_query_labels.append(label_binary)
-
             except:
                 print('no label found for {}'.format(data[0]))
 
@@ -304,31 +281,10 @@ class VideoConceptDiscovery(object):
             dataset.append(rgb_video)
             self.labels.append(label)
             self.list_video_ids.append(int(data[0].split('/')[-1].split('.')[0]))
-            if len(dataset)+1 == self.args.max_num_videos: # todo: should remove +1
+            if len(dataset) == self.args.max_num_videos:
                 break
 
-
-        # dataset = [self.post_resize_smooth(video) for video in dataset]
         dataset = torch.stack(dataset, dim=0) # n x c x t x h x w
-
-
-        # save frames
-        # frame_save_path = os.path.join(self.args.ssv2_path, 'frames', self.args.target_class).replace(' ', '_')
-        # if not os.path.exists(frame_save_path):
-        #     os.makedirs(frame_save_path)
-        # for i, frames in enumerate(save_frames):
-        #     # create folder for each video
-        #     video_frame_save_path = os.path.join(frame_save_path, str(self.list_video_ids[i]))
-        #     if not os.path.exists(video_frame_save_path):
-        #         os.makedirs(video_frame_save_path)
-
-            # for j, frame in enumerate(frames):
-            #     # reverse rgb
-            #     frame = frame.numpy()
-            #     frame = Image.fromarray(np.uint8(frame))
-            #     frame.save(os.path.join(video_frame_save_path, str(j)+'.png'))
-
-        print(sorted(self.list_video_ids))
         return dataset
 
     def load_kubric_videos(self, perturb_idx=0, view_idx=0, frame_inds_load=36, frame_inds_clip=30, stride=1):
@@ -1214,7 +1170,7 @@ class VideoConceptDiscovery(object):
                         curr_out = all_out[resolution_idx]
                         curr_out = curr_out.squeeze(0) if (self.args.intra_cluster_method not in ['slic', 'crop', 'random'])  else curr_out
                         self.num_intra_clusters[layer][head].append(num_clusters)
-                        if 'vidmae' in self.args.model or 'mme' in self.args.model:
+                        if 'vidmae' in self.args.model:
                             try:
                                 curr_out_resized = torch.nn.functional.interpolate(curr_out.unsqueeze(0), size=(self.model.num_frames, self.frame_width, self.frame_height), mode='trilinear').squeeze(0)
                             except:
@@ -1354,7 +1310,6 @@ class VideoConceptDiscovery(object):
                                                                 max_num_clusters=self.args.inter_max_cluster,
                                                                 elbow_threshold=elbow_value,
                                                                 layer=layer,
-                                                                normalize=self.args.inter_norm,
                                                                 verbose=False)
 
 

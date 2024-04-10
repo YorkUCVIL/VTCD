@@ -10,7 +10,7 @@ import pickle
 import numpy as np
 import torch
 from einops import rearrange
-sys.path.append('/home/ubuntu/video_concept_discovery/')
+sys.path.append('/home/ubuntu/VTCD/')
 from utilities.utils import load_model
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
 from evaluation.importance_utils import *
@@ -25,23 +25,6 @@ def main(args):
     '''
     Script to prune heads from models while using the full dataset to rank heads, prune them, and evaluate.
     '''
-
-
-    # set up directories and paths to save results
-
-    # set up dataloader
-
-    # set up model
-
-    # iterate through all videos in dataset (either for all classes or a subset) while masking heads
-
-    # record performance and mask for each head
-
-    # calculate head importance and save results
-
-    # prune heads and evaluate performance on validation set
-
-
 
     num_videos = args.dataset_pkl_path.split('Max')[1].split('.')[0]
     if not len(args.target_class_idxs) > 1:

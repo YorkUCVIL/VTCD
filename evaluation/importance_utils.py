@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from tqdm import tqdm
 from einops import rearrange
-sys.path.append('/home/ubuntu/video_concept_discovery/')
+sys.path.append('/home/ubuntu/VTCD/')
 from utilities.utils import load_model
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
 

@@ -176,7 +176,6 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
                     vidmae_args.nb_classes = 174
                     vidmae_args.sampling_rate = 2
                 vidmae_args.model = 'vit_base_patch16_224'
-
                 model = vit_base_patch16_224(
                     pretrained=False,
                     num_classes=vidmae_args.nb_classes,
@@ -264,7 +263,7 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
         # load training args if using kubric (i.e., target mask, etc)
         if args.dataset == 'kubric':
             # use baseline occ tracking model
-            train_args_ckpt = 'models/hide_seek/tcow/checkpoints/v111/checkpoint.pth'
+            train_args_ckpt = 'checkpoints/v111/checkpoint.pth'
             train_args = torch.load(train_args_ckpt, map_location='cpu')['train_args']
             if 'occl_cont_zero_weight' not in train_args:
                 train_args.occl_cont_zero_weight = 0.02
@@ -364,57 +363,3 @@ def save_vcd(vcd):
     # save vcd as pickle file
     with open(vcd_path, 'wb') as f:
         pickle.dump(vcd, f)
-
-
-
-def loadvideo_decord(sample, sample_rate_scale=1, num_segment=1, keep_aspect_ratio=False, mode='train'):
-        """Load video content using Decord"""
-        fname = sample
-
-        if not (os.path.exists(fname)):
-            return []
-
-        # avoid hanging issue
-        if os.path.getsize(fname) < 1 * 1024:
-            print('SKIP: ', fname, " - ", os.path.getsize(fname))
-            return []
-        try:
-            if keep_aspect_ratio:
-                vr = VideoReader(fname, num_threads=1, ctx=cpu(0))
-            else:
-                vr = VideoReader(fname, width=self.new_width, height=self.new_height,
-                                 num_threads=1, ctx=cpu(0))
-        except:
-            print("video cannot be loaded by decord: ", fname)
-            return []
-
-        if mode == 'test':
-            all_index = [x for x in range(0, len(vr), self.frame_sample_rate)]
-            while len(all_index) < self.clip_len:
-                all_index.append(all_index[-1])
-            vr.seek(0)
-            buffer = vr.get_batch(all_index).asnumpy()
-            return buffer
-
-        # handle temporal segments
-        converted_len = int(self.clip_len * self.frame_sample_rate)
-        seg_len = len(vr) // self.num_segment
-
-        all_index = []
-        for i in range(num_segment):
-            if seg_len <= converted_len:
-                index = np.linspace(0, seg_len, num=seg_len // self.frame_sample_rate)
-                index = np.concatenate((index, np.ones(self.clip_len - seg_len // self.frame_sample_rate) * seg_len))
-                index = np.clip(index, 0, seg_len - 1).astype(np.int64)
-            else:
-                end_idx = np.random.randint(converted_len, seg_len)
-                str_idx = end_idx - converted_len
-                index = np.linspace(str_idx, end_idx, num=self.clip_len)
-                index = np.clip(index, str_idx, end_idx - 1).astype(np.int64)
-            index = index + i*seg_len
-            all_index.extend(list(index))
-
-        all_index = all_index[::int(sample_rate_scale)]
-        vr.seek(0)
-        buffer = vr.get_batch(all_index).asnumpy()
-        return buffer

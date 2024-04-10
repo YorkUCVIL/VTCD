@@ -288,7 +288,6 @@ class PretrainVisionTransformer(nn.Module):
                     clust_features = [feat.mean(2) for feat in clust_features]
                 else:
                     clust_features = [feat[:, :, self.encoder.attn_head] for feat in clust_features]
-                # clust_features = [rearrange(feat, 'B (T H W) C -> B C T H W', B=B, T=8, H=14, W=14).cpu() for feat in clust_features]
                 clust_features = [rearrange(feat, 'B (T H W) nh C -> B C nh T H W', B=1, T=8, H=14, W=14).cpu() for feat in clust_features]
         else:
             clust_features = None

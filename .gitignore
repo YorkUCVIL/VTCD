@@ -3,3 +3,5 @@ checkpoints/
 *.pt
 *.pth
 *.pyth
+*.DS_Store
+cmds/
