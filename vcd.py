@@ -28,7 +28,8 @@ import models.hide_seek.tcow as tcow
 from models.hide_seek.tcow.data.data_vis import *
 from models.hide_seek.tcow.data.data_utils import *
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track, calculate_weighted_averages
-
+import psutil
+import gc
 
 def random_color():
     """Generate a random color"""
@@ -1119,6 +1120,12 @@ class VideoConceptDiscovery(object):
             total_num_clusters = 0
             print('Clustering layer {}'.format(layer))
             for vid_idx in tqdm.tqdm(range(num_videos)):
+                # check memory usage
+                if psutil.virtual_memory().percent > 90:
+                    print('Memory usage too high, clearing memory...')
+                    gc.collect()
+                    torch.cuda.empty_cache()
+                    exit()
                 for head_idx, head in enumerate(self.args.attn_head):
                     feature = features[vid_idx][:,:,head_idx]
                     B, C, T, H, W = feature.shape

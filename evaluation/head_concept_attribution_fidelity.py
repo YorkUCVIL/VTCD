@@ -405,7 +405,7 @@ def plot_results(args, results):
     plt.legend()
     plt.title('Concept removal performance curve ({} Masks)'.format(args.num_masks))
     # save plot
-    plt.savefig('evaluation/concept_importance/cris/{}_{}Masks.png'.format(args.exp_name, args.num_masks))
+    plt.savefig('results/{}/AttributionCurve_{}Masks.png'.format(args.exp_name, args.num_masks))
     # plt.show()
 
 
@@ -669,39 +669,9 @@ def vcd_args():
 
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_keys_spilling_6class_fgc', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Nocc_Keys_OG_AllLayHead', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_v1_Keys_OG_rsoafs', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='intern_ssv2_compact015', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_Keys_OG_AllLayHead', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_Keys_OG_InterKM_AllLayHead', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_keys_tso', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_v1_Values_OG_AllLayHead', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_keys_ptcswaci', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_RandomTube_ssv2_keys_dsis', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_pre_keys_dsis', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_pre_keys_hsws', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_RandomTube_ssv2_keys_pssism', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_RandomTube_ssv2_keys_psfrtl', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_Keys_OG_AllLayHead', type=str, help='experiment name (used for saving)')
-    parser.add_argument('--exp_name' ,default='Intern_Keys_SSv2_dsis', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='videomae_ssv2_pre_keys_dsis', type=str, help='experiment name (used for saving)')
-    # parser.add_argument('--exp_name' ,default='Occ_Values_OG_AllLayHead', type=str, help='experiment name (used for saving)')
-
+    parser.add_argument('--exp_name' ,default='test', type=str, help='experiment name (used for saving)')
 
     # general
-    parser.add_argument('--dataset', default='kubric', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='kinetics', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    parser.add_argument('--kubric_path', default='/data/kubcon_v10', type=str,help='kubric path')
-    parser.add_argument('--uvo_path', default='/home/matthewkowal/data/uvo', type=str,help='kubric path')
-    parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
-    parser.add_argument('--kinetics_path', default='/data/kinetics400', type=str,help='kubric path')
-    # parser.add_argument('--target_class', default='archery', type=str,help='target class name for classification dataset')
-    parser.add_argument('--target_class', default='Dropping something into something', type=str,help='target class name for classification dataset')
-    parser.add_argument('--custom_path', default='data/sample', type=str,help='path to custom dataset')
-    parser.add_argument('--force_reload_videos', action='store_true',help='Maximum number of videos to use during clustering.')
-    parser.add_argument('--cache_name', default='v1', type=str,help='experiment name (used for saving)')
     parser.add_argument('--fig_save_name', default='attribution_plot',help='figure name (used for saving)')
     parser.add_argument('--compare_multiclass', action='store_true', help='if true, average over multiple classes and then compare ')
     parser.add_argument('--overwrite_importance', action='store_true', help='Overwrite importance results')

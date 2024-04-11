@@ -1,17 +1,12 @@
 
-import os
 import sys
-import time
+sys.path.append('/home/ubuntu/VTCD/')
 import random
 import gc
-import argparse
-import json
-import pickle
 import numpy as np
 import torch
 from tqdm import tqdm
 from einops import rearrange
-sys.path.append('/home/ubuntu/VTCD/')
 from utilities.utils import load_model
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
 
