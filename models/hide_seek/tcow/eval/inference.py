@@ -74,6 +74,7 @@ def load_networks(checkpoint_path, device, logger, epoch=-1, args=None, random=F
     seeker_net = seeker.Seeker(logger, **seeker_args)
     seeker_net = seeker_net.to(device)
     if not random:
+        print('Loading weights from: ' + checkpoint_path)
         seeker_net.load_state_dict(checkpoint['net_seeker'])
     networks = {'seeker': seeker_net}
     epoch = checkpoint['epoch']

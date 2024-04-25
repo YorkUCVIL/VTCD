@@ -270,14 +270,8 @@ def multi_head_attention_forward(query: Tensor,
         # combine, reshape, and rearrange masks to match qkv
         concept_mask = torch.ones_like(feature)
         for i, head in enumerate(heads):
-            # if output[0].shape[1] == 1568 or output[0].shape[0] == 1568:
-            #     single_mask = F.interpolate(masks[i].unsqueeze(0).unsqueeze(0).type(torch.uint8), size=(8, 14, 14), mode='nearest').squeeze(0).cuda().float()
-            # else:
-            #     single_mask = F.interpolate(masks[i].unsqueeze(0).unsqueeze(0).type(torch.uint8), size=(30, 15, 20),mode='nearest').squeeze(0).squeeze(0).cuda().float()
             single_mask = torch.nn.functional.interpolate(masks[i].unsqueeze(0).unsqueeze(0).type(torch.uint8), size=(16, 14, 14), mode='nearest').squeeze(0).squeeze(0).cuda().float()
             single_mask = rearrange(single_mask, 't h w -> (h w t)').cuda()
-
-            # todo: why is single mask half the temporal dimension
             concept_mask[:, head, :] = torch.mul(concept_mask[:, head, :].T, single_mask.T).T
 
         # multiply masks with qkv values

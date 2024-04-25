@@ -4,19 +4,20 @@ import sys
 sys.path.append('/home/ubuntu/VTCD/')
 import time
 
-import torch
-import torch.nn.functional as F
-import torchvision
-
 import pickle
 import csv
 import json
 import random
+import argparse
 import numpy as np
 from tqdm import tqdm
+import seaborn as sns
 from einops import rearrange
 from matplotlib import pyplot as plt
-import argparse
+
+import torch
+import torch.nn.functional as F
+import torchvision
 
 from utilities.utils import load_model
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
@@ -24,19 +25,13 @@ import models.hide_seek.tcow as tcow
 
 def main(args):
     global video
-    results_path = 'results/{}/ConceptHeadImportance_HW_{}Masks{}.pkl'.format(args.exp_name, args.num_masks, args.results_name)
+    results_path = 'results/{}/ConceptImportance_{}Masks{}.pkl'.format(args.exp_name, args.num_masks, args.results_name)
     print('Results will be saved to {}'.format(results_path))
     if args.use_saved_results and not args.recompute_performance_curves:
         if os.path.exists(results_path):
             print('Loading results from {}'.format(results_path))
             with open(results_path, 'rb') as f:
                 all_results = pickle.load(f)
-            readable_ranking = [( '{}'.format(x.split('-')[0]), '{}'.format(x.split('-')[1]), '{}'.format(x.split('-')[2]) ) for x in all_results['concept_importance_most_to_least']]
-            # save as csv
-            with open('evaluation/head_importance/HeadRanking_{}_{}Masks.csv'.format(args.exp_name, args.num_masks), 'w') as f:
-                for item in readable_ranking:
-                    f.write("{}, {}, {}\n".format(item[0], item[1], item[2]))
-
 
             # quantify what layers the most important concepts are in
             layer_scores = {layer: [] for layer in range(12)}
@@ -44,13 +39,16 @@ def main(args):
                 layer = int(concept.split('-')[0].split('Layer')[-1])
                 score = (len(all_results['concept_importance_most_to_least']) - idx) / len(all_results['concept_importance_most_to_least'])
                 layer_scores[layer].append(score)
+
             # average scores
             for layer in layer_scores.keys():
                 layer_scores[layer] = np.mean(layer_scores[layer])
+
             # sort layers by score
             sorted_layer_scores = sorted(layer_scores.items(), key=lambda x: x[1], reverse=True)
-            score_variance = np.std([x[1] for x in sorted_layer_scores])
-
+            print('Most important layers:')
+            for layer, score in sorted_layer_scores:
+                print('Layer {}: {:.3f}'.format(layer, score))
 
             # plot results
             results = {
@@ -58,7 +56,7 @@ def main(args):
                 'least_to_most': all_results['least_to_most'],
                 'random': all_results['random'],
             }
-            plot_results(args, results)
+            plot_save_results(args, results)
             exit()
         else:
             print('No results found at {}'.format(results_path))
@@ -80,7 +78,7 @@ def main(args):
 
     # temporary fix for multiclass
     try:
-        print(vcd.multiclass)
+        tmp = vcd.multiclass
     except:
         vcd.multiclass = False
 
@@ -112,7 +110,7 @@ def main(args):
         if vcd.multiclass:
             target_class_idx = vcd.args.target_class_idxs
         else:
-            target_class_name = path_to_dataset.split(vcd.args.cache_name+'_')[-1].split('_Max')[0].replace('_', ' ')
+            target_class_name = path_to_dataset.split('_Max')[0].replace('_', ' ').split('/')[-1]
             target_class_idx = int(ssv2_labels[target_class_name])
 
     else:
@@ -145,17 +143,9 @@ def main(args):
                         if video_idx not in all_concept_masks.keys():
                             all_concept_masks[video_idx] = {}
                         all_concept_masks[video_idx]['Layer{}-Head{}-{}'.format(layer, head,concept)] = masks
-
-
-
     all_concepts = list(enumerate(all_concepts))
     number_total_concepts = len(all_concepts)
     num_concepts_to_mask = int(number_total_concepts * args.masking_ratio)
-
-    # debuging
-    # model = load_model(args)
-    # MostLeastHeadImportance = torch.randint(low=0, high=len(all_concepts), size=[len(all_concepts)])
-    # MostLeastResults = concept_removal_performance_curve(vcd, args, model, dataset, all_concepts, MostLeastHeadImportance, target_class_idx)
 
     if not args.recompute_performance_curves:
         with torch.no_grad():
@@ -164,9 +154,6 @@ def main(args):
             baseline_masks = []
             print('Computing importance of heads with {} masks'.format(args.num_masks))
             for video_idx in tqdm(range(num_videos)):
-                if args.debug:
-                    if video_idx == 2:
-                        break
                 # load model
                 model = load_model(args)
                 if 'timesformer' in args.model:
@@ -193,8 +180,6 @@ def main(args):
                     pre_video = dataset[video_idx].permute(1, 0, 2, 3)
                     if pre_video.shape[-1] != 224:
                         pre_video = vcd.post_resize_smooth(dataset[video_idx].permute(1, 0, 2, 3))
-                    # unnorm_videos = unnorm_videos.permute(1, 0, 2, 3)
-
                     # normalize video with imagenet stats
                     video = torch.stack([torchvision.transforms.Normalize(
                         mean=[0.485, 0.456, 0.406],
@@ -215,7 +200,7 @@ def main(args):
                         baseline_performances.append(-loss.item())
                     else:
                         pred, _ = model(video)
-                    # if multiclass, use logit sums as importance
+                    # if multiclass, use logit sum as importance
                         if vcd.multiclass:
                             baseline_performances.append(1) if pred.argmax(dim=1).item() == vcd.labels[video_idx] else baseline_performances.append(0)
                         else:
@@ -236,6 +221,7 @@ def main(args):
                     video_features = torch.nn.functional.normalize(video_features, dim=1)
                     t = model.logit_scale.exp()
                     logit = (video_features @ text_features.T * t)
+
                     baseline_performances.append(logit[0].item())
                 else:
                     raise NotImplementedError
@@ -243,7 +229,7 @@ def main(args):
                 cris_concepts_removed = []
                 performance_list = []
 
-                # CRIS: mask concepts and compute performance after each mask
+                # CRIS: mask many concepts and compute performance after each mask
                 for i in range(args.num_masks):
                     # sample concepts to mask with CRIS
                     concepts_to_remove_and_idx = random.sample(all_concepts, num_concepts_to_mask)
@@ -259,7 +245,7 @@ def main(args):
                             continue
                         all_layer_hook_dict[layer]['heads'].append(head)
                         all_layer_hook_dict[layer]['masks'].append(all_concept_masks[video_idx][concept_idx])
-                    # load model
+                    # load model with hooks
                     model = load_model(args, hook=remove_concepts, hook_layer=list(vcd.dic.keys()), model=model, hook_dict=all_layer_hook_dict)
                     if 'timesformer' in args.model:
                         if 'kub' in path_to_dataset:
@@ -279,6 +265,7 @@ def main(args):
                             (output_mask, output_flags, features) = model(video, seeker_query_mask)
                             pred = (output_mask > 0.5).cpu().detach()
                             # compare pred with baseline mask
+                            # todo: this is getting really poor performance, need to debug
                             new_performance = compute_iou(pred, baseline_mask)
                     elif 'vidmae' in args.model:
                         if 'pre' in args.model:
@@ -310,6 +297,7 @@ def main(args):
                     bool_concepts_kept = 1 - bool_concepts_to_remove
                     cris_concepts_removed.append(bool_concepts_kept)
                     performance_list.append(new_performance)
+
                 # compute cris importance through a weighted sum of performance and the heads removed to achieve that performance (higher performance * heads kept means more important!)
                 cris_concepts_removed = torch.stack(cris_concepts_removed)
                 if vcd.multiclass:
@@ -323,7 +311,7 @@ def main(args):
             baseline_performance = np.mean(baseline_performances)
             MostLeastConceptImportance = concept_importance.argsort(descending=True)
             LeastMostConceptImportance = concept_importance.argsort()
-
+            del model
     else:
         print('Loading results from {}'.format(results_path))
         with open(results_path, 'rb') as f:
@@ -332,10 +320,25 @@ def main(args):
         MostLeastConceptImportance = concept_importance.argsort(descending=True)
         LeastMostConceptImportance = concept_importance.argsort()
         baseline_performance = all_results['most_to_least'][0]
-        baseline_masks = None
-        # baseline_performance = 0.3469387755102041
-        model = load_model(args)
 
+        # need baseline masks for tcow-ssv2
+        baseline_masks = []
+        model = load_model(args)
+        for video_idx in range(num_videos):
+            # load model
+            if 'timesformer' in args.model and 'ssv2' in path_to_dataset:
+                # if ssv2, we don't have labels, so just assume the baseline is 1.0 (i.e., the prediction is always correct)
+                video = vcd.post_resize_smooth(dataset[video_idx]).unsqueeze(0).cuda()
+                seeker_query_mask = vcd.post_resize_nearest(vcd.seeker_query_labels[video_idx].squeeze(0)).unsqueeze(0).cuda()
+
+                # todo: model predicts all zeros for some reason!!
+                # todo: check order of masks/data (although this should be fine)
+                (output_mask, output_flags, features) = model(video, seeker_query_mask)
+                baseline_mask = (output_mask > 0.5).cpu().detach()
+                print(video_idx, baseline_mask.sum())
+                baseline_masks.append(baseline_mask)
+
+    model = load_model(args)
     # compute attribution when removing heads in order from head_importance
     print('1/3: most to least important')
     # most_to_least
@@ -355,7 +358,6 @@ def main(args):
     RandomResults = np.concatenate([np.expand_dims(baseline_performance, axis=0), RandomResults])
 
     # convert head_importance to dict where the keys are the layer and the values are the head importances
-
     concept_importance_list = [all_concepts[x][1] for x in MostLeastConceptImportance]
     results = {
         'concept_importance': concept_importance,
@@ -371,26 +373,26 @@ def main(args):
         pickle.dump(results, f)
 
     # plot results
-    plot_results(args, results)
+    plot_results = {
+        'most_to_least': results['most_to_least'],
+        'least_to_most': results['least_to_most'],
+        'random': results['random'],
+    }
+    plot_save_results(args, plot_results)
 
 
-def plot_results(args, results):
-    import matplotlib.pyplot as plt
-    import seaborn as sns
+def plot_save_results(args, results):
     plt.style.use('dark_background')
     colors = sns.color_palette("husl", 3)
 
+    # plot results for each ordering
     for i, (key, result) in enumerate(results.items()):
         frac_concepts_removed = [i / len(result) for i in range(len(result))]
         auc = np.trapz(result, frac_concepts_removed)
         plt.plot(frac_concepts_removed, result, color=colors[i], label=key + ' (AUC: {:.3f})'.format(auc))
 
-
     # save data as csv
-    # concepts_removed, standard_scores
-    # concepts_removed, random_scores
-    # concepts_removed, inverse_scores
-    csv_data_path = 'evaluation/concept_importance/cris/{}.csv'.format(args.exp_name)
+    csv_data_path = 'results/{}/Readable_ConceptImportance_{}Masks{}.csv'.format(args.exp_name, args.num_masks, args.results_name)
     with open(csv_data_path, 'w') as f:
         writer = csv.writer(f)
         writer.writerow(['concepts_removed', 'standard_scores', 'random_scores', 'inverse_scores'])
@@ -398,15 +400,13 @@ def plot_results(args, results):
         for i in range(0, len(frac_concepts_removed)):
             writer.writerow([frac_concepts_removed[i], results['most_to_least'][i], results['random'][i], results['least_to_most'][i]])
 
-
-
     plt.xlabel('Concepts removed')
-    plt.ylabel('Snitch mIoU' if 'timesformer' in args.model else 'Acc')
+    plt.ylabel('Performance')
     plt.legend()
     plt.title('Concept removal performance curve ({} Masks)'.format(args.num_masks))
-    # save plot
+    # save and show plot
     plt.savefig('results/{}/AttributionCurve_{}Masks.png'.format(args.exp_name, args.num_masks))
-    # plt.show()
+    plt.show()
 
 
 def compute_iou(v1, v2):
@@ -439,37 +439,17 @@ def concept_removal_performance_curve(vcd, args, model, dataset, all_concept_mas
     with torch.no_grad():
         for video_idx in tqdm(range(num_videos)):
             # compute attribution when removing heads
-            if args.debug:
-                if video_idx == 2:
-                    break
-
             all_layer_hook_dict = {layer: {'heads': [], 'masks': [], 'cluster_subject': vcd.args.cluster_subject} for layer in range(12)}
             PerStepResults = []
             for i in range(NumRemovedStep):
                 concepts_to_remove_idx = concept_importance[i * ConceptsRemovedEachStep: (i + 1) * ConceptsRemovedEachStep]
-                # HeadLayers = [x % 12 for x in IdxHeadRemove]
-                # HeadHeads = [x // 12 for x in IdxHeadRemove]
-                # for layer in range(12):
-                #     heads_to_remove = torch.tensor(HeadHeads)[torch.where(torch.tensor(HeadLayers) == layer)]
-                #     if i == 0:
-                #         all_layer_hook_dict[layer] = {'heads_to_remove': heads_to_remove}
-                #     else:
-                #         all_layer_hook_dict[layer] = {'heads_to_remove': torch.cat([all_layer_hook_dict[layer]['heads_to_remove'],heads_to_remove])}
-
-                # sample concepts to mask with Concept Rise
+                # sample concepts to mask with CRIS
                 concepts_to_remove = [all_concepts[x][1] for x in concepts_to_remove_idx]
                 for concept_idx in concepts_to_remove:
                     # get all masks that belong to concept for this video
                     layer = int(concept_idx.split('-')[0].split('Layer')[-1])
                     head = int(concept_idx.split('-')[1].split('Head')[-1])
-                    # concept = concept_idx.split('-')[-1]
-                    # mask_paths = [mask for mask in vcd.dic[layer][head][concept]['video_mask'] if 'video_{}'.format(video_idx) in mask]
-                    # if len(mask_paths) == 0:
-                    #     continue
-                    # masks = np.stack([np.load(mask_path) for mask_path in mask_paths])
-                    # # multiply all masks to get one mask and invert
-                    # masks = 1 - (np.sum(masks, axis=0) > 0)
-                    # masks = torch.tensor(masks)
+
                     # put in layer dict for hook
                     if not concept_idx in all_concept_masks[video_idx].keys():
                         continue
@@ -500,6 +480,7 @@ def concept_removal_performance_curve(vcd, args, model, dataset, all_concept_mas
                         pred = (output_mask > 0.5).cpu().detach()
                         # compare pred with baseline mask
                         new_performance = compute_iou(pred, baseline_masks[video_idx])
+                    print('Single New Performance: {}'.format(new_performance))
                 elif 'vidmae' in args.model or 'mme' in args.model:
                     pre_video = dataset[video_idx].permute(1, 0, 2, 3)
 
@@ -548,16 +529,16 @@ def concept_removal_performance_curve(vcd, args, model, dataset, all_concept_mas
 
     # average over all videos
     PerVideoResults = np.stack(PerVideoResults).mean(0)
+    print(PerVideoResults)
     return PerVideoResults
 
 
 def remove_concepts(module, input, output):
+    # grab hook_dict info
     heads = module.hook_dict['heads']
     masks = module.hook_dict['masks']
     cluster_subject = module.hook_dict['cluster_subject']
 
-    # temporal shape = 300,12,30,64
-    # spatial shape = 30,12,301,64
     B, N, C = input[0].shape
 
     # rearrange to get head dimension
@@ -600,7 +581,6 @@ def remove_concepts(module, input, output):
         qkv = torch.stack([feature, k, v]).permute(1, 3, 0, 2, 4).reshape(B, N, -1)
 
     return qkv
-
 
 def tcow_timesformer_forward(dataset, model, vid_idx, keep_all=False):
         # hard coded stuff
@@ -645,24 +625,14 @@ def tcow_timesformer_forward(dataset, model, vid_idx, keep_all=False):
         # forward pass:
         (output_mask, output_flags, features) = model(seeker_input, seeker_query_mask)
 
-            # debug - visualize the output of the model
-            # t = 13
-            # plt.imshow(seeker_input[0][:, t].permute(1, 2, 0).cpu());plt.show()
-            # plt.imshow(output_mask[0].sigmoid()[0][t].cpu());plt.show()
-
+        # prepare model_retval for metrics
         model_retval = {}
-        # all_target_flags.append(target_flags)  # (B, T, 3).
-        # target_flags = torch.stack([target_flags], dim=1)  # (B, Qs, T, 3).
         model_retval['target_flags'] = torch.stack([target_flags], dim=1).cuda()  # (B, Qs, T, 3).
-
-        # snitch_occl_by_ptr = torch.stack([snitch_occl_by_ptr], dim=1)  # (B, Qs, 1, T, Hf, Wf).
         model_retval['snitch_occl_by_ptr'] = torch.stack([snitch_occl_by_ptr], dim=1).cuda()
-
         cur_occl_fracs = occl_fracs[:, query_idx, :, :].diagonal(0, 0, 1)
         cur_occl_fracs = rearrange(cur_occl_fracs, 'T V B -> B T V')  # (B, T, 3).
         sel_occl_fracs = torch.stack([cur_occl_fracs], dim=1)  # (B, Qs, T, 3).
         model_retval['sel_occl_fracs'] = sel_occl_fracs.cuda()  # (B, Qs, T, 3).
-
         return output_mask, output_flags, target_mask, features, model_retval
 
 def vcd_args():
@@ -710,9 +680,6 @@ def vcd_args():
 
     # reproducibility
     parser.add_argument('--seed', default=0, type=int,help='seed')
-
-
-    parser.add_argument('--debug', action='store_true', help='Debug using only 2 videos for all functions.')
 
     args = parser.parse_args(sys.argv[1:])
 

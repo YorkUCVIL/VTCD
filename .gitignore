@@ -5,3 +5,4 @@ checkpoints/
 *.pyth
 *.DS_Store
 cmds/
+results/

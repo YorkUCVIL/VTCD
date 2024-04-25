@@ -63,7 +63,10 @@ class VideoConceptDiscovery(object):
             else:
                 self.dataset = self.load_kubric_videos()
         elif args.dataset == 'ssv2':
-            cached_file_path = os.path.join(self.args.ssv2_path, '{}_Max{}_{}.pkl'.format(self.args.target_class, self.args.max_num_videos, 'train' if self.args.use_train else 'val')).replace(' ', '_')
+            if 'timesformer' in args.model:
+                cached_file_path = os.path.join(self.args.ssv2_path, '{}_Max{}_{}_{}.pkl'.format(self.args.target_class, self.args.max_num_videos, 'train' if self.args.use_train else 'val', 'tcow')).replace(' ', '_')
+            else:
+                cached_file_path = os.path.join(self.args.ssv2_path, '{}_Max{}_{}.pkl'.format(self.args.target_class, self.args.max_num_videos, 'train' if self.args.use_train else 'val')).replace(' ', '_')
             print(cached_file_path)
             self.cached_file_path = cached_file_path
             if os.path.exists(cached_file_path) and not self.args.force_reload_videos:
@@ -672,7 +675,7 @@ class VideoConceptDiscovery(object):
         :return:
         '''
 
-        # self.outputs = [] # for debugging
+        self.outputs = []
         preds = []
         results = {'mean_snitch_iou': [],
                    'mean_occl_mask_iou': [],

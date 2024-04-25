@@ -26,12 +26,11 @@ def main(args):
     Script to prune heads from models while using the full dataset to rank heads, prune them, and evaluate.
     '''
 
-    num_videos = args.dataset_pkl_path.split('Max')[1].split('.')[0]
-    if not len(args.target_class_idxs) > 1:
-        results_path = 'evaluation/head_importance_full_data/{}_{}Epoch_{}Masks_{}Vids.pkl'.format(args.model, args.epochs ,args.num_masks, num_videos)
-    else:
-        results_path = 'evaluation/head_importance_full_data/{}_{}Epoch_{}Masks_{}Vids_{}.pkl'.format(args.model, args.epochs, args.num_masks, num_videos, '_'.join([str(x) for x in sorted(args.target_class_idxs)]))
+    if not os.path.exists('results/{}'.format(args.exp_name)):
+        os.makedirs('results/{}'.format(args.exp_name))
 
+    results_path = 'results/{}/{}_{}Epoch_{}Masks_{}.pkl'.format(args.exp_name, args.model, args.epochs, args.num_masks, '_'.join([str(x) for x in sorted(args.target_class_idxs)]))
+    print('Results will be saved to {}'.format(results_path))
     if args.use_saved_results and not args.recompute_performance_curves:
         if os.path.exists(results_path):
             print('Loading results from {}'.format(results_path))
@@ -39,17 +38,13 @@ def main(args):
                 all_results = pickle.load(f)
 
             readable_ranking = [('layer {}'.format(x%12),'head {}'.format(x//12)) for x in all_results['head_importance_list']]
-            # save as csv
-            with open('evaluation/head_importance/HeadRanking_{}_{}Masks_{}Vids.csv'.format(args.model, args.num_masks, num_videos), 'w') as f:
-                for item in readable_ranking:
-                    f.write("{}, {}\n".format(item[0], item[1]))
             # plot results
             results = {
                 'most_to_least': all_results['most_to_least'],
                 'least_to_most': all_results['least_to_most'],
                 'random': all_results['random'],
             }
-            plot_results(args, results, num_videos)
+            plot_results(args, results)
             exit()
         else:
             print('No results found at {}'.format(results_path))
@@ -70,7 +65,7 @@ def main(args):
     if not args.recompute_performance_curves:
         head_importances = []
         for epoch in range(args.epochs):
-            print('Epoch {}/{}'.format(epoch, args.epochs-1))
+            print('Epoch {}/{}'.format(epoch+1, args.epochs))
             # iterate through all videos in dataset (either for all classes or a subset) while masking heads
             for batch_idx, data in enumerate(tqdm(train_loader)):
                 if args.debug:
@@ -101,20 +96,7 @@ def main(args):
 
                     model = load_model(args, hook=remove_heads, hook_layer=list(range(12)), model=model,
                                        hook_dict=all_layer_hook_dict)
-                    if 'timesformer' in args.model:
-                        output_mask, output_flags, target_mask, features, model_retval = tcow_timesformer_forward(dataset,
-                                                                                                                  model,
-                                                                                                                  video_idx,
-                                                                                                                  keep_all=False)
-                        model_retval = {
-                            'output_mask': output_mask.unsqueeze(0),
-                            'target_mask': target_mask.unsqueeze(0)}
-                        metrics_retval = calculate_metrics_mask_track(data_retval=None, model_retval=model_retval,
-                                                                      source_name='kubric')
-                        # put results from cuda to cpu
-                        metrics_retval = {k: v.cpu() for k, v in metrics_retval.items()}
-                        performance = metrics_retval['mean_snitch_iou'].item()
-                    elif 'vidmae' in args.model or 'mme' in args.model:
+                    if 'vidmae' in args.model:
                         pred, _ = model(video)
                         pred = pred.argmax(dim=1).cpu().detach()
                         performance = (pred == target).sum().item() / len(pred)
@@ -198,7 +180,7 @@ def main(args):
     }
 
 
-    plot_results(args, results, num_videos)
+    plot_results(args, results)
 
 
 class SSV2(Dataset):
@@ -274,7 +256,7 @@ class SSV2(Dataset):
         return rgb_video, torch.tensor(int(label))
 
 
-def plot_results(args, results, num_videos):
+def plot_results(args, results):
     import matplotlib.pyplot as plt
     import seaborn as sns
     plt.style.use('dark_background')
@@ -288,7 +270,8 @@ def plot_results(args, results, num_videos):
     plt.xlabel('Heads removed')
     plt.ylabel('Snitch mIoU' if 'timesformer' in args.model else 'Acc')
     plt.legend()
-    plt.title('Head removal performance curve ({} Videos - {} Masks)'.format(num_videos, args.num_masks))
+    plt.title('Head removal performance curve ({} Masks)'.format(args.num_masks))
+    plt.savefig('results/{}/HeadsFullDataset_AttributionCurve_{}Masks.png'.format(args.exp_name, args.num_masks))
     plt.show()
 
 
@@ -360,20 +343,7 @@ def head_removal_performance_curve(args, model, validation_loader, head_importan
 
                 model = load_model(args, hook=remove_heads, hook_layer=list(range(12)), model=model,
                                    hook_dict=all_layer_hook_dict)
-                if 'timesformer' in args.model:
-                    output_mask, output_flags, target_mask, features, model_retval = tcow_timesformer_forward(dataset,
-                                                                                                              model,
-                                                                                                              video_idx,
-                                                                                                              keep_all=False)
-                    model_retval = {
-                        'output_mask': output_mask.unsqueeze(0),
-                        'target_mask': target_mask.unsqueeze(0)}
-                    metrics_retval = calculate_metrics_mask_track(data_retval=None, model_retval=model_retval,
-                                                                  source_name='kubric')
-                    # put results from cuda to cpu
-                    metrics_retval = {k: v.cpu() for k, v in metrics_retval.items()}
-                    new_performance = metrics_retval['mean_snitch_iou'].item()
-                elif 'vidmae' in args.model or 'mme' in args.model:
+                if 'vidmae' in args.model:
                     pred, _ = model(video)
                     pred = pred.argmax(dim=1).cpu().detach()
                     performance = (pred == target).sum().item() / len(pred)
@@ -483,7 +453,7 @@ def tcow_timesformer_forward(dataset, model, vid_idx, keep_all=False):
 def vcd_args():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--exp_name' ,default='videomae_ssv2_keys_spilling_6class_fgc_train60', type=str, help='experiment name (used for saving)')
+    parser.add_argument('--exp_name' ,default='VideoMAE_SSv2_Spilling', type=str, help='experiment name (used for saving)')
 
     # general
     parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
@@ -519,13 +489,13 @@ def vcd_args():
     parser.add_argument('--cluster_memory', default='curr', type=str,help='Subject to cluster)', choices=['tokens', 'curr', 'long', 'short'])
     parser.add_argument('--use_temporal_attn', action='store_true', help='Flag to use temporal feature maps for timesformer.')
     parser.add_argument('--attn_head', nargs='+', default=[], type=int, help='Which heads to use to cluster attention maps (-1 is mean | use 0 if using entire feature).')
-    parser.add_argument('--target_class_idxs', nargs='+', default=[], type=int,help='target class idx for multiple target class setting')
-    # parser.add_argument('--target_class_idxs', nargs='+', default=[60,136,137,138,159,163], type=int,help='target class idx for multiple target class setting')
+    # parser.add_argument('--target_class_idxs', nargs='+', default=[], type=int,help='target class idx for multiple target class setting')
+    parser.add_argument('--target_class_idxs', nargs='+', default=[60,136,137,138,159,163], type=int,help='target class idx for multiple target class setting')
 
 
     # concept importance
     parser.add_argument('--removal_type', default='rish', help='type of attribution removal to do. [perlay | alllay | alllayhead || rish | gradient]')
-    parser.add_argument('--num_masks', default=25, type=int, help='Number of masks to forward pass during random head removal for RISH.')
+    parser.add_argument('--num_masks', default=1, type=int, help='Number of masks to forward pass during random head removal for RISH.')
     parser.add_argument('--heads_removed_each_step', default=10, type=int, help='Number of passes during random head removal for RISH.')
     parser.add_argument('--random_importance', action='store_true', help='Use random concept importance.')
     parser.add_argument('--baseline_compare', action='store_true', help='Compare with random and inverse baselines.')

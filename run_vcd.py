@@ -11,24 +11,22 @@ import json
 
 import numpy as np
 import torch
-import torchvision
-from vcd import VideoConceptDiscovery as VCD
+from vcd import VideoConceptDiscovery as VTCD
 from utilities.utils import load_model, save_vcd, prepare_directories
 
 def main(args):
-    print('Experiment name: {}'.format(args.exp_name))
-
     # prepare directories
+    print('Experiment name: {}'.format(args.exp_name))
     args = prepare_directories(args)
     vcd_path = os.path.join(args.vcd_dir, 'vcd.pkl')
     if args.preload_vcd and os.path.exists(vcd_path):
-            print('Loading VCD from {}'.format(vcd_path))
+            print('Loading VTCD from {}'.format(vcd_path))
             vcd = pickle.load(open(vcd_path, 'rb'))
+            # setting arguments
             args.model = vcd.args.model
             args.cluster_layer = vcd.args.cluster_layer
             args.cluster_subject = vcd.args.cluster_subject
             args.concept_clustering = vcd.args.concept_clustering
-            args.cluster_memory = vcd.args.cluster_memory
 
             print('Trying to load cached file from {}'.format(vcd.cached_file_path))
             if os.path.exists(vcd.cached_file_path) and not args.force_reload_videos:
@@ -40,33 +38,31 @@ def main(args):
         with open(os.path.join(args.save_dir, 'args.json'), 'w') as f:
             json.dump(args.__dict__, f, indent=2)
 
-        # 0a) load model
+        # load model
         model = load_model(args)
 
-        # 0b) initialize vcd
-        print('Initializing VCD...')
+        # initialize vcd
+        print('Initializing VTCD...')
         start_time = time.time()
-        vcd = VCD(args, model)
+        vcd = VTCD(args, model)
         end_time = time.time()
-        print('Initializing VCD took {:.2f} minutes'.format((end_time-start_time)/60))
+        print('Initializing VTCD took {:.2f} minutes'.format((end_time-start_time)/60))
 
-        # 1) intra video clustering
-        print('Intra video clustering...')
+        print('Tubelet clustering...')
         start_time = time.time()
         vcd.intra_video_clustering()
         end_time = time.time()
-        print('Intra video clustering took {:.2f} minutes'.format((end_time-start_time)/60))
+        print('Tubelet clustering took {:.2f} minutes'.format((end_time-start_time)/60))
 
-        print('Inter video clustering...')
-        # 2) inter video clustering
+        print('Concept clustering...')
         start_time = time.time()
         vcd.inter_video_clustering()
         end_time = time.time()
-        print('Inter video clustering took {:.2f} minutes'.format((end_time-start_time)/60))
+        print('Concept clustering took {:.2f} minutes'.format((end_time-start_time)/60))
 
     # 3) Compute DAVIS16 metrics
     if args.Eval_D16_VOS:
-        print('Computing concept metrics...')
+        print('Computing Davis16 performance...')
         start_time = time.time()
         if 'davis16' in vcd.args.dataset:
             from evaluation.vtcd_vos_eval import compute_davis16_vos_score
@@ -82,7 +78,8 @@ def main(args):
         else:
             raise NotImplementedError('Only DAVIS16 metrics are supported.')
         end_time = time.time()
-        print('Computing concept metrics took {:.2f} minutes'.format((end_time-start_time)/60))
+        print('Running Davis16 val took {:.2f} minutes'.format((end_time-start_time)/60))
+        exit()
 
     if args.save_concepts or args.save_single_concept_videos:
         start_time = time.time()

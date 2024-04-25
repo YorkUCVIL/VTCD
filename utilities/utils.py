@@ -1,11 +1,6 @@
 import pickle
 import os
 import torch
-import numpy as np
-import decord
-from decord import VideoReader, cpu
-import models.hide_seek.tcow.loss as tcow_loss
-import yaml
 
 def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, hook_dict=None, enable_grad=False):
     if 'timesformer' in args.model:
@@ -14,7 +9,7 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
             from models.hide_seek.tcow.eval import inference
 
             tcow_test_args = test_args()
-            tcow_test_args.data_path = args.kubric_path
+            # tcow_test_args.data_path = args.kubric_path
             tcow_test_args.resume = 'checkpoints/v111/checkpoint.pth'
 
             if len(args.checkpoint_path) > 0:
@@ -119,14 +114,6 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
                             model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[str(lay)]._modules['attn']._modules['qkv']._forward_hooks.clear()
                     model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[str(hook_layer)]._modules['attn']._modules['qkv'].register_forward_hook(hook)
                     model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[str(hook_layer)]._modules['attn']._modules['qkv'].hook_dict = hook_dict if hook_dict is not None else None
-
-                # add loss to model if neccessary
-                if args.cat_method == 'integrated_gradients':
-                    from models.hide_seek.tcow.args import train_args
-                    tcow_train_args = train_args()
-                    loss = tcow_loss.MyLosses(tcow_train_args, logger=None, phase='val')
-                    model.loss = loss
-                    model.loss.train_args = tcow_train_args
         torch.set_grad_enabled(enable_grad)
     elif 'vidmae' in args.model:
         if model is None:

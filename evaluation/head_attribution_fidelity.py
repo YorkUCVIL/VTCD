@@ -44,9 +44,9 @@ def main(args):
     '''
     num_videos = args.dataset_pkl_path.split('Max')[1].split('.')[0]
     if not len(args.target_class_idxs) > 1:
-        results_path = 'evaluation/head_importance/{}_{}Masks_{}Vids.pkl'.format(args.model, args.num_masks, num_videos)
+        results_path = 'results/{}/HeadImportance_{}Masks.pkl'.format(args.exp_name, args.num_masks)
     else:
-        results_path = 'evaluation/head_importance/{}_{}Masks_{}Vids_{}.pkl'.format(args.model, args.num_masks, num_videos, '_'.join([str(x) for x in sorted(args.target_class_idxs)]))
+        results_path = 'results/{}/HeadImportance_{}Masks_{}.pkl'.format(args.exp_name, args.num_masks, '_'.join([str(x) for x in sorted(args.target_class_idxs)]))
 
     if args.use_saved_results and not args.recompute_performance_curves:
         if os.path.exists(results_path):
@@ -383,7 +383,8 @@ def plot_results(args, results, num_videos):
     plt.ylabel('Snitch mIoU' if 'timesformer' in args.model else 'Acc')
     plt.legend()
     plt.title('Head removal performance curve ({} Videos - {} Masks)'.format(num_videos, args.num_masks))
-    plt.show()
+    plt.savefig('results/{}/AttributionCurve_{}Masks.png'.format(args.exp_name, args.num_masks))
+    # plt.show()
 
 def head_removal_performance_curve(args, model, dataset, head_importance, target_class_idx=None, multiclass=False, vcd=None):
     HeadsRemovedEachStep = args.heads_removed_each_step

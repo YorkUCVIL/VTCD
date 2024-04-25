@@ -17,3 +17,5 @@ pycocotools
 seaborn
 simplejson
 tqdm
+ftfy
+regex
