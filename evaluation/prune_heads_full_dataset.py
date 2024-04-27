@@ -457,17 +457,11 @@ def vcd_args():
 
     # general
     parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    # parser.add_argument('--dataset_pkl_path', default='/data/ssv2/v1_Closing_something_Max30.pkl', type=str,help='dataset to use')
-    # parser.add_argument('--dataset_pkl_path', default='/data/ssv2/v1_Rolling_something_on_a_flat_surface_Max30.pkl', type=str,help='dataset to use')
     parser.add_argument('--dataset_pkl_path', default='/data/ssv2/v1_60_136_137_138_159_163_Max60_train.pkl', type=str,help='dataset to use')
-    # parser.add_argument('--dataset_pkl_path', default='/data/kubcon_v10/val/v1_Max30.pkl', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='kinetics', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
     parser.add_argument('--kubric_path', default='/data/kubcon_v10', type=str,help='kubric path')
     parser.add_argument('--uvo_path', default='/home/matthewkowal/data/uvo', type=str,help='kubric path')
     parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
     parser.add_argument('--kinetics_path', default='/data/kinetics400', type=str,help='kubric path')
-    # parser.add_argument('--target_class', default='archery', type=str,help='target class name for classification dataset')
     parser.add_argument('--target_class', default='Dropping something into something', type=str,help='target class name for classification dataset')
     parser.add_argument('--custom_path', default='data/sample', type=str,help='path to custom dataset')
     parser.add_argument('--force_reload_videos', action='store_true',help='Maximum number of videos to use during clustering.')
@@ -480,7 +474,6 @@ def vcd_args():
     parser.add_argument('--use_saved_results', action='store_true', help='Use saved results.')
 
     # model
-    # parser.add_argument('--model', default='timesformer_occ_v1', type=str,help='Model to run.')
     parser.add_argument('--model', default='vidmae_ssv2_ft', type=str,help='Model to run.')
     parser.add_argument('--checkpoint_path', default='', type=str,help='Override checkpoint path.')
     parser.add_argument('--concept_clustering', action='store_true', help='Flag to perform concept clustering.')
@@ -489,13 +482,12 @@ def vcd_args():
     parser.add_argument('--cluster_memory', default='curr', type=str,help='Subject to cluster)', choices=['tokens', 'curr', 'long', 'short'])
     parser.add_argument('--use_temporal_attn', action='store_true', help='Flag to use temporal feature maps for timesformer.')
     parser.add_argument('--attn_head', nargs='+', default=[], type=int, help='Which heads to use to cluster attention maps (-1 is mean | use 0 if using entire feature).')
-    # parser.add_argument('--target_class_idxs', nargs='+', default=[], type=int,help='target class idx for multiple target class setting')
     parser.add_argument('--target_class_idxs', nargs='+', default=[60,136,137,138,159,163], type=int,help='target class idx for multiple target class setting')
 
 
     # concept importance
     parser.add_argument('--removal_type', default='rish', help='type of attribution removal to do. [perlay | alllay | alllayhead || rish | gradient]')
-    parser.add_argument('--num_masks', default=1, type=int, help='Number of masks to forward pass during random head removal for RISH.')
+    parser.add_argument('--num_masks', default=25, type=int, help='Number of masks to forward pass during random head removal for RISH.')
     parser.add_argument('--heads_removed_each_step', default=10, type=int, help='Number of passes during random head removal for RISH.')
     parser.add_argument('--random_importance', action='store_true', help='Use random concept importance.')
     parser.add_argument('--baseline_compare', action='store_true', help='Compare with random and inverse baselines.')

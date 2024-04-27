@@ -119,8 +119,8 @@ def vcd_args():
     parser.add_argument('--process_full_video', action='store_true', help='Run VTCD on the full video length.')
 
     # model and clustering settings
-    # parser.add_argument('--model', default='timesformer_occ', type=str,help='Model to run.')
-    parser.add_argument('--model', default='vidmae_ssv2_pre', type=str,help='Model to run.')
+    parser.add_argument('--model', default='timesformer_occ', type=str,help='Model to run.')
+    # parser.add_argument('--model', default='vidmae_ssv2_pre', type=str,help='Model to run.')
     # parser.add_argument('--model', default='vidmae_ssv2_ft', type=str,help='Model to run.')
     # parser.add_argument('--model', default='intern', type=str,help='Model to run.')
     parser.add_argument('--cluster_layer', nargs='+', default=[10], type=int,

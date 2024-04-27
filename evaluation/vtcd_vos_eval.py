@@ -9,13 +9,11 @@ from segment_anything.utils.transforms import ResizeLongestSide
 from torchvision.ops import masks_to_boxes
 resize_longest_side = ResizeLongestSide(1024)
 
-def compute_davis16_vos_score(vcd, first_frame_query=False, per_video_head=True,
+def compute_davis16_vos_score(vcd, first_frame_query=False,
                       train_head_search=False, post_sam=False, num_points=1, mode='random',
                       sample_factor=8, use_last_centroid=False, use_box=False):
     '''
-    Computes VOS score for each concept in each layer and head for the DAVIS dataset
-    :param vcd:
-    :return:
+    Computes VOS score for the DAVIS dataset
     '''
 
     if post_sam:
@@ -23,6 +21,7 @@ def compute_davis16_vos_score(vcd, first_frame_query=False, per_video_head=True,
         sys.path.append("..")
         from segment_anything import sam_model_registry, SamPredictor
 
+        # load sam model
         sam_checkpoint = "segment_anything/ckpts/sam_vit_h_4b8939.pth"
         model_type = "vit_h"
         # sam_checkpoint = "segment_anything/ckpts/sam_vit_b_01ec64.pth"
@@ -35,31 +34,17 @@ def compute_davis16_vos_score(vcd, first_frame_query=False, per_video_head=True,
 
         predictor = SamPredictor(sam)
 
-    # load RGB dataset
+    # reloading dataset
     if 'timesformer' in vcd.args.model:
         sampling_rate = 1
         num_frames = 30
     else:
         sampling_rate = 2
         num_frames = 16
-        # reloading dataset
     vcd.dataset = vcd.load_davis16_videos(sampling_rate, num_frames)
 
+    # save path - load train results if filtering by training results
     save_path = os.path.join(vcd.args.save_dir, 'davis16_vos_results.json')
-
-    # just for printing best heads
-#     if os.path.exists(save_path) and not first_frame_query and train_head_search:
-#         with open(save_path, 'r') as f:
-#             results = json.load(f)
-#         best_heads = []
-#         for video_idx in results.keys():
-#             best_heads.append(results[video_idx][0][0].split('concept')[0][:-1])
-#
-#         best_heads_norepeat_print = list(dict.fromkeys(best_heads))
-#         # print best heads
-#         for head in best_heads_norepeat_print:
-#             print(head)
-
     if train_head_search:
         train_path = save_path.replace('val', 'train')
         with open(train_path, 'r') as f:
@@ -70,237 +55,169 @@ def compute_davis16_vos_score(vcd, first_frame_query=False, per_video_head=True,
 
         best_heads_norepeat = list(dict.fromkeys(best_heads))
 
+    results = {}
+    per_frame_iou = []
+    # compute iou between every concept and every video
+    for video_idx in tqdm(range(len(vcd.labels))):
+        results[video_idx] = {}
+        label = vcd.labels[video_idx]
+        if first_frame_query:
+            best_dict = {
+                'layer': None,
+                'head': None,
+                'concept': None,
+                'iou': 0
+            }
+
+            for layer in reversed(vcd.dic.keys()):
+                for head in vcd.args.attn_head:
+                    if train_head_search:
+                        lay_head = 'layer_{} head_{}'.format(layer, head)
+                        if lay_head not in best_heads_norepeat:
+                            continue
+                    for concept in vcd.dic[layer][head]['concepts']:
+                        # grab concept mask and video ids
+                        video_ids = vcd.dic[layer][head][concept]['video_numbers']
+                        concept_masks = vcd.dic[layer][head][concept]['video_mask']
+                        if isinstance(concept_masks, list):
+                            if not vcd.args.process_full_video:
+                                concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks],
+                                                            dim=0)
+                            else:
+                                concept_masks = [torch.tensor(np.load(mask)) for mask in concept_masks]
+
+                        # grab labels and concept masks for video_idx
+                        video_ids = torch.tensor(video_ids)
+                        video_ids = video_ids == video_idx
+                        if video_ids.sum() != 0:
+                            if not vcd.args.process_full_video:
+                                # compute iou for first frames
+                                iou = compute_iou(concept_masks[:, 0], label[:, 0])
+                            else:
+                                # concept_masks = [concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]]
+                                concept_masks = torch.stack([concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]], dim=0)
+                                single_tubelet_mask = concept_masks.sum(0) > 0
+                                iou = compute_iou(single_tubelet_mask[0], label[0])
+
+                            if iou > best_dict['iou']:
+                                best_dict['layer'] = layer
+                                best_dict['head'] = head
+                                best_dict['concept'] = concept
+                                best_dict['iou'] = iou
+                                best_concept_mask = single_tubelet_mask
 
 
-    if per_video_head:
-        results = {}
-        per_frame_iou = []
-        # compute iou between every concept and every video
-        for video_idx in tqdm(range(len(vcd.labels))):
-            results[video_idx] = {}
-            label = vcd.labels[video_idx]
-            if first_frame_query:
-                best_dict = {
-                    'layer': None,
-                    'head': None,
-                    'concept': None,
-                    'iou': 0
-                }
+                        # compute iou for best concept over all frames
+            video_ids = vcd.dic[best_dict['layer']][best_dict['head']][best_dict['concept']]['video_numbers']
+            if video_idx not in video_ids:
+                final_iou = 0
+            else:
+                if not vcd.args.process_full_video:
+                    labels = torch.stack(vcd.labels)[video_idx]
+                    labels = labels.unsqueeze(0).repeat(concept_masks, 1, 1, 1)
+                    if post_sam:
+                        # postprocess masks
+                        concept_masks = postprocess(concept_masks, vcd.dataset[video_idx], predictor,
+                                                    num_points=num_points, mode=mode,
+                                                    sample_factor=sample_factor,use_last_centroid=use_last_centroid,
+                                                    use_box=use_box)
+                        labels = torch.stack(vcd.labels)[video_idx]
+                    # compute iou
+                    final_iou = compute_iou(concept_masks, labels)
+                else:
+                    # grab label for video_idx
+                    if post_sam:
+                        # postprocess masks
+                        final_mask = postprocess(best_concept_mask.unsqueeze(0), vcd.dataset[video_idx], predictor,
+                                                    num_points=num_points, mode=mode,
+                                                    sample_factor=sample_factor,use_last_centroid=use_last_centroid,
+                                                    use_box=use_box)
+                        # video_iou = compute_iou(final_mask, label)
+                        per_video_frame_iou = []
+                        for frame_idx in range(label.shape[0]):
+                            iou = compute_iou(final_mask[frame_idx], label[frame_idx])
+                            per_video_frame_iou.append(iou)
+                            per_frame_iou.append(iou)
+                        per_video_frame_iou = np.mean(per_video_frame_iou)
+                    else:
+                        final_mask = best_concept_mask
+                        # video_iou = compute_iou(best_concept_mask, label)
+                        per_video_frame_iou = []
+                        for frame_idx in range(label.shape[0]):
+                            iou = compute_iou(final_mask[frame_idx], label[frame_idx])
+                            per_video_frame_iou.append(iou)
+                            per_frame_iou.append(iou)
+                        per_video_frame_iou = np.mean(per_video_frame_iou)
 
-                for layer in reversed(vcd.dic.keys()):
-                    for head in vcd.args.attn_head:
-                        if train_head_search:
-                            lay_head = 'layer_{} head_{}'.format(layer, head)
-                            if lay_head not in best_heads_norepeat:
-                                continue
-                        for concept in vcd.dic[layer][head]['concepts']:
-                            # grab concept mask and video ids
-                            video_ids = vcd.dic[layer][head][concept]['video_numbers']
+                    # save prediction
+                    save_prediction(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix='d16')
+
+            # print('Best concept based on query frame: {}, iou: {}'.format(best_concept, iou))
+            key = 'layer_{} head_{} {}'.format(best_dict['layer'], best_dict['head'], best_dict['concept'])
+            results[video_idx][key] = per_video_frame_iou
+        else:
+            for layer in reversed(vcd.dic.keys()):
+                for head in vcd.args.attn_head:
+                    for concept in vcd.dic[layer][head]['concepts']:
+                        # video ids for concept
+                        video_ids = vcd.dic[layer][head][concept]['video_numbers']
+
+                        # pass if video not in concept
+                        if video_idx not in video_ids:
+                            iou = 0
+                        else:
+                            # otherwise grab concept mask and measure iou
                             concept_masks = vcd.dic[layer][head][concept]['video_mask']
                             if isinstance(concept_masks, list):
                                 if not vcd.args.process_full_video:
-                                    concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks],
-                                                                dim=0)
+                                    concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks], dim=0)
                                 else:
                                     concept_masks = [torch.tensor(np.load(mask)) for mask in concept_masks]
 
                             # grab labels and concept masks for video_idx
                             video_ids = torch.tensor(video_ids)
                             video_ids = video_ids == video_idx
-                            if video_ids.sum() != 0:
-                                if not vcd.args.process_full_video:
-                                    # compute iou for first frames
-                                    iou = compute_iou(concept_masks[:, 0], label[:, 0])
-                                else:
-                                    # concept_masks = [concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]]
-                                    concept_masks = torch.stack([concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]], dim=0)
-                                    single_tubelet_mask = concept_masks.sum(0) > 0
-                                    iou = compute_iou(single_tubelet_mask[0], label[0])
+                            if not vcd.args.process_full_video:
+                                concept_masks = concept_masks[video_ids]
 
-                                if iou > best_dict['iou']:
-                                    best_dict['layer'] = layer
-                                    best_dict['head'] = head
-                                    best_dict['concept'] = concept
-                                    best_dict['iou'] = iou
-                                    best_concept_mask = single_tubelet_mask
-
-
-                            # compute iou for best concept over all frames
-                video_ids = vcd.dic[best_dict['layer']][best_dict['head']][best_dict['concept']]['video_numbers']
-                if video_idx not in video_ids:
-                    final_iou = 0
-                else:
-                    if not vcd.args.process_full_video:
-                        labels = torch.stack(vcd.labels)[video_idx]
-                        labels = labels.unsqueeze(0).repeat(concept_masks, 1, 1, 1)
-                        if post_sam:
-                            # postprocess masks
-                            concept_masks = postprocess(concept_masks, vcd.dataset[video_idx], predictor,
-                                                        num_points=num_points, mode=mode,
-                                                        sample_factor=sample_factor,use_last_centroid=use_last_centroid,
-                                                        use_box=use_box)
-                            labels = torch.stack(vcd.labels)[video_idx]
-                        # compute iou
-                        final_iou = compute_iou(concept_masks, labels)
-                    else:
-                        # grab label for video_idx
-                        if post_sam:
-                            # postprocess masks
-                            final_mask = postprocess(best_concept_mask.unsqueeze(0), vcd.dataset[video_idx], predictor,
-                                                        num_points=num_points, mode=mode,
-                                                        sample_factor=sample_factor,use_last_centroid=use_last_centroid,
-                                                        use_box=use_box)
-                            # video_iou = compute_iou(final_mask, label)
-                            per_video_frame_iou = []
-                            for frame_idx in range(label.shape[0]):
-                                iou = compute_iou(final_mask[frame_idx], label[frame_idx])
-                                per_video_frame_iou.append(iou)
-                                per_frame_iou.append(iou)
-                            per_video_frame_iou = np.mean(per_video_frame_iou)
-                        else:
-                            final_mask = best_concept_mask
-                            # video_iou = compute_iou(best_concept_mask, label)
-                            per_video_frame_iou = []
-                            for frame_idx in range(label.shape[0]):
-                                iou = compute_iou(final_mask[frame_idx], label[frame_idx])
-                                per_video_frame_iou.append(iou)
-                                per_frame_iou.append(iou)
-                            per_video_frame_iou = np.mean(per_video_frame_iou)
-
-                        # save prediction
-                        save_prediction(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix='d16')
-
-                # print('Best concept based on query frame: {}, iou: {}'.format(best_concept, iou))
-                key = 'layer_{} head_{} {}'.format(best_dict['layer'], best_dict['head'], best_dict['concept'])
-                results[video_idx][key] = per_video_frame_iou
-            else:
-                for layer in reversed(vcd.dic.keys()):
-                    for head in vcd.args.attn_head:
-                        for concept in vcd.dic[layer][head]['concepts']:
-                            # video ids for concept
-                            video_ids = vcd.dic[layer][head][concept]['video_numbers']
-
-                            # pass if video not in concept
-                            if video_idx not in video_ids:
-                                iou = 0
+                                # compute iou
+                                iou = compute_iou(concept_masks, labels)
                             else:
-                                # otherwise grab concept mask and measure iou
-                                concept_masks = vcd.dic[layer][head][concept]['video_mask']
-                                if isinstance(concept_masks, list):
-                                    if not vcd.args.process_full_video:
-                                        concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks], dim=0)
-                                    else:
-                                        concept_masks = [torch.tensor(np.load(mask)) for mask in concept_masks]
+                                concept_masks = torch.stack([concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]], dim=0)
 
-                                # grab labels and concept masks for video_idx
-                                video_ids = torch.tensor(video_ids)
-                                video_ids = video_ids == video_idx
-                                if not vcd.args.process_full_video:
-                                    concept_masks = concept_masks[video_ids]
+                                single_tubelet_mask = concept_masks.sum(0) > 0
 
-                                    # compute iou
-                                    iou = compute_iou(concept_masks, labels)
-                                else:
-                                    concept_masks = torch.stack([concept_masks[i] for i in range(len(concept_masks)) if video_ids[i]], dim=0)
+                                # compute iou
+                                iou = compute_iou(single_tubelet_mask, label)
 
-                                    single_tubelet_mask = concept_masks.sum(0) > 0
-
-                                    # compute iou
-                                    iou = compute_iou(single_tubelet_mask, label)
-
-                                    per_video_frame_iou = []
-                                    for frame_idx in range(label.shape[0]):
-                                        iou = compute_iou(single_tubelet_mask[frame_idx], label[frame_idx])
-                                        per_video_frame_iou.append(iou)
-                                        per_frame_iou.append(iou)
-                                    per_video_frame_iou = np.mean(per_video_frame_iou)
-
-                            key = 'layer_{} head_{} {}'.format(layer, head, concept)
-                            results[video_idx][key] = iou
-
-
-            # sort results by iou for current video
-            curr_video_results = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
-            print('video: {}, best head: {}, iou: {}'.format(video_idx, curr_video_results[0][0], curr_video_results[0][1]))
-
-        # sort results by iou
-        for video_idx in results.keys():
-            results[video_idx] = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
-
-        # calculate average iou over all videos for the best head
-        best_ious = []
-        for video_idx in results.keys():
-            best_ious.append(results[video_idx][0][1])
-        mIoU = np.mean(best_ious)
-        print('mIoU: {}'.format(mIoU))
-
-        per_frame_iou = np.mean(per_frame_iou)
-        print('per frame iou: {}'.format(per_frame_iou))
-
-    else:
-        results = {}
-
-        for layer in tqdm(vcd.dic.keys()):
-            for head in vcd.args.attn_head:
-
-                # compute iou for each concept and first frame to see which concept is most important
-                if first_frame_query:
-                    best_concept = None
-                    best_iou = 0
-                    for concept in vcd.dic[layer][head]['concepts']:
-                        # grab concept mask and video ids
-                        concept_masks = vcd.dic[layer][head][concept]['video_mask']
-                        video_ids = vcd.dic[layer][head][concept]['video_numbers']
-
-                        if isinstance(concept_masks, list):
-                            concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks], dim=0)
-
-                        # grab gt concept masks
-                        labels = torch.stack(vcd.labels)[video_ids]
-
-                        # compute iou for first frames
-                        iou = compute_iou(concept_masks[:, 0], labels[:, 0])
-
-                        if iou > best_iou:
-                            best_concept = concept
-                            best_iou = iou
-
-                    # compute iou for best concept over all frames
-                    concept_masks = vcd.dic[layer][head][best_concept]['video_mask']
-                    video_ids = vcd.dic[layer][head][best_concept]['video_numbers']
-
-                    if isinstance(concept_masks, list):
-                        concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks], dim=0)
-
-                    # grab gt concept masks
-                    labels = torch.stack(vcd.labels)[video_ids]
-
-                    # compute iou
-                    iou = compute_iou(concept_masks, labels)
-
-                    print('Best concept based on query frame: {}, iou: {}'.format(best_concept, iou))
-                    return
-
-                else:
-                    for concept in vcd.dic[layer][head]['concepts']:
-                        # grab concept mask and video ids
-                        concept_masks = vcd.dic[layer][head][concept]['video_mask']
-                        video_ids = vcd.dic[layer][head][concept]['video_numbers']
-
-                        if isinstance(concept_masks, list):
-                            concept_masks = torch.stack([torch.tensor(np.load(mask)) for mask in concept_masks], dim=0)
-
-                        # grab gt concept masks
-                        labels = torch.stack(vcd.labels)[video_ids]
-
-                        # compute iou
-                        iou = compute_iou(concept_masks, labels)
+                                per_video_frame_iou = []
+                                for frame_idx in range(label.shape[0]):
+                                    iou = compute_iou(single_tubelet_mask[frame_idx], label[frame_idx])
+                                    per_video_frame_iou.append(iou)
+                                    per_frame_iou.append(iou)
+                                per_video_frame_iou = np.mean(per_video_frame_iou)
 
                         key = 'layer_{} head_{} {}'.format(layer, head, concept)
-                        results[key] = iou
+                        results[video_idx][key] = iou
 
-        # sort results by iou
-        sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
+
+        # sort results by iou for current video
+        curr_video_results = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
+        print('Video: {}, Best head: {}, IoU: {}'.format(video_idx, curr_video_results[0][0], curr_video_results[0][1]))
+
+    # sort results by iou
+    for video_idx in results.keys():
+        results[video_idx] = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
+
+    # calculate average iou over all videos for the best head
+    best_ious = []
+    for video_idx in results.keys():
+        best_ious.append(results[video_idx][0][1])
+    mIoU = np.mean(best_ious)
+    print('mIoU: {}'.format(mIoU))
+
+    per_frame_iou = np.mean(per_frame_iou)
+    print('per frame iou: {}'.format(per_frame_iou))
 
     # save results as json file
     with open(save_path, 'w') as f:

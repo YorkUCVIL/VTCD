@@ -129,6 +129,7 @@ class QueryMaskTracker(torch.nn.Module):
         if self.tracker_arch == 'timesformer':
             (output_features, _, clust_out) = self.tracker_backbone(input_with_query, None)
 
+
         elif self.tracker_arch == 'resnet50':
             input_with_query = input_with_query[:, :, :self.num_visible_frames, :, :]
             input_with_query_stack = rearrange(input_with_query, 'B C T H W -> B (C T) H W')

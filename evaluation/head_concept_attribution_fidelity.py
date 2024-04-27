@@ -120,32 +120,32 @@ def main(args):
 
 
 
-    # get all concepts in a huge list
-    all_concepts = []
-    all_concept_masks = {}
-    print('Loading masks...')
-    for layer in tqdm(vcd.dic.keys()):
-        for head in vcd.dic[layer].keys():
-            for concept in vcd.dic[layer][head]['concepts']:
-                all_concepts.append('Layer{}-Head{}-{}'.format(layer, head,concept))
-                for video_idx in range(num_videos):
-                    mask_paths = [mask for mask in vcd.dic[layer][head][concept]['video_mask'] if'video_{}'.format(video_idx) in mask]
-                    if len(mask_paths) > 0:
-                        masks = np.stack([np.load(mask_path) for mask_path in mask_paths])
-                        masks = 1 - (np.sum(masks, axis=0) > 0)
-                        masks = torch.tensor(masks)
-
-                        if 'timesformer' in args.model:
-                            masks = F.interpolate(masks.unsqueeze(0).unsqueeze(0).type(torch.uint8),size=(30, 15, 20), mode='nearest').squeeze(0).squeeze(0).float()
-                        else:
-                            masks = F.interpolate(masks.unsqueeze(0).unsqueeze(0).type(torch.uint8), size=(8, 14, 14), mode='nearest').squeeze(0).squeeze(0).float()
-
-                        if video_idx not in all_concept_masks.keys():
-                            all_concept_masks[video_idx] = {}
-                        all_concept_masks[video_idx]['Layer{}-Head{}-{}'.format(layer, head,concept)] = masks
-    all_concepts = list(enumerate(all_concepts))
-    number_total_concepts = len(all_concepts)
-    num_concepts_to_mask = int(number_total_concepts * args.masking_ratio)
+    # # get all concepts in a huge list
+    # all_concepts = []
+    # all_concept_masks = {}
+    # print('Loading masks...')
+    # for layer in tqdm(vcd.dic.keys()):
+    #     for head in vcd.dic[layer].keys():
+    #         for concept in vcd.dic[layer][head]['concepts']:
+    #             all_concepts.append('Layer{}-Head{}-{}'.format(layer, head,concept))
+    #             for video_idx in range(num_videos):
+    #                 mask_paths = [mask for mask in vcd.dic[layer][head][concept]['video_mask'] if'video_{}'.format(video_idx) in mask]
+    #                 if len(mask_paths) > 0:
+    #                     masks = np.stack([np.load(mask_path) for mask_path in mask_paths])
+    #                     masks = 1 - (np.sum(masks, axis=0) > 0)
+    #                     masks = torch.tensor(masks)
+    #
+    #                     if 'timesformer' in args.model:
+    #                         masks = F.interpolate(masks.unsqueeze(0).unsqueeze(0).type(torch.uint8),size=(30, 15, 20), mode='nearest').squeeze(0).squeeze(0).float()
+    #                     else:
+    #                         masks = F.interpolate(masks.unsqueeze(0).unsqueeze(0).type(torch.uint8), size=(8, 14, 14), mode='nearest').squeeze(0).squeeze(0).float()
+    #
+    #                     if video_idx not in all_concept_masks.keys():
+    #                         all_concept_masks[video_idx] = {}
+    #                     all_concept_masks[video_idx]['Layer{}-Head{}-{}'.format(layer, head,concept)] = masks
+    # all_concepts = list(enumerate(all_concepts))
+    # number_total_concepts = len(all_concepts)
+    # num_concepts_to_mask = int(number_total_concepts * args.masking_ratio)
 
     if not args.recompute_performance_curves:
         with torch.no_grad():
@@ -324,19 +324,38 @@ def main(args):
         # need baseline masks for tcow-ssv2
         baseline_masks = []
         model = load_model(args)
-        for video_idx in range(num_videos):
-            # load model
-            if 'timesformer' in args.model and 'ssv2' in path_to_dataset:
-                # if ssv2, we don't have labels, so just assume the baseline is 1.0 (i.e., the prediction is always correct)
-                video = vcd.post_resize_smooth(dataset[video_idx]).unsqueeze(0).cuda()
-                seeker_query_mask = vcd.post_resize_nearest(vcd.seeker_query_labels[video_idx].squeeze(0)).unsqueeze(0).cuda()
+        with torch.no_grad():
+            for video_idx in range(num_videos):
+                # synchronize cuda
+                # torch.cuda.synchronize()
+                # load model
+                if 'timesformer' in args.model and 'ssv2' in path_to_dataset:
+                    # if ssv2, we don't have labels, so just assume the baseline is 1.0 (i.e., the prediction is always correct)
+                    video = vcd.post_resize_smooth(dataset[video_idx]).unsqueeze(0).cuda()
+                    seeker_query_mask = vcd.post_resize_nearest(vcd.seeker_query_labels[video_idx].squeeze(0)).unsqueeze(0).cuda()
 
-                # todo: model predicts all zeros for some reason!!
-                # todo: check order of masks/data (although this should be fine)
-                (output_mask, output_flags, features) = model(video, seeker_query_mask)
-                baseline_mask = (output_mask > 0.5).cpu().detach()
-                print(video_idx, baseline_mask.sum())
-                baseline_masks.append(baseline_mask)
+                    # todo: model predicts all zeros for some reason!!
+                    # todo: check order of masks/data (although this should be fine)
+                    # print types of masks
+                    (output_mask, output_flags, features) = model(video, seeker_query_mask)
+                    baseline_mask = (output_mask > 0.5).cpu().detach()
+                    baseline_masks.append(baseline_mask)
+                    # print('Video {}: video sum: {} dtype: {}'.format(video_idx, video[0,:,0].sum(), video.dtype))
+                    # print('Video {}: seeker_query_mask sum: {} dtype: {}'.format(video_idx, seeker_query_mask[0,0,0].sum(), seeker_query_mask.dtype))
+                    # print('Video {}: baseline_mask sum: {} dtype: {}'.format(video_idx, baseline_mask.sum(), baseline_mask.dtype))
+
+                    # print()
+
+                    # # save video and masks
+                    # pre_path = 'tmp_local'
+                    # if not os.path.exists(pre_path):
+                    #     os.makedirs(pre_path)
+                    # plt.imshow(video[0, :, 0].permute(1, 2, 0).cpu())
+                    # plt.savefig('{}/{}_video.png'.format(pre_path, video_idx))
+                    # plt.imshow(seeker_query_mask[0, 0,0].cpu())
+                    # plt.savefig('{}/{}_seeker_query_mask.png'.format(pre_path, video_idx))
+
+
 
     model = load_model(args)
     # compute attribution when removing heads in order from head_importance

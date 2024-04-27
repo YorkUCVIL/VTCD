@@ -92,6 +92,7 @@ class DenseTimeSformer(torch.nn.Module):
         # https://github.com/facebookresearch/TimeSformer/blob/main/timesformer/models/vit.py
         # See fr-timesformer (or Ctrl+Click TimeSformer) for actual code.
         B = input_pixels.shape[0]
+
         x, T, W = self.timesformer.model.patch_embed(input_pixels)
         assert T == self.T
         assert W == self.Wo
@@ -117,7 +118,6 @@ class DenseTimeSformer(torch.nn.Module):
             x = x + self.timesformer.model.pos_embed
 
         x = self.timesformer.model.pos_drop(x)
-
         # Time Embeddings
         cls_tokens = x[:B, 0, :].unsqueeze(1)
         x = x[:, 1:]

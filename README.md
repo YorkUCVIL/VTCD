@@ -8,10 +8,10 @@ Official Implementation of our CVPR 2024 (Highlight) Paper.
 ```
 conda create -n VTCD python=3.10.12
 conda activate VTCD
+cd models/hide_seek/tcow/TimeSformer ; pip install -e .
+cd segment-anything; pip install -e .
 pip install -r requirements.txt
 pip install 'git+https://github.com/facebookresearch/fvcore'
-cd models/hide_seek/tcow/TimeSformer ; python setup.py build develop 
-cd segment-anything; pip install -e .
 ```
 
 # Data Preparation
