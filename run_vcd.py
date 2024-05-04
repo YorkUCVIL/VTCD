@@ -12,7 +12,7 @@ import json
 import numpy as np
 import torch
 from vcd import VideoConceptDiscovery as VTCD
-from utilities.utils import load_model, save_vcd, prepare_directories
+from utils.utils import load_model, save_vcd, prepare_directories
 
 def main(args):
     # prepare directories
@@ -100,40 +100,32 @@ def vcd_args():
     parser.add_argument('--preload_vcd', action='store_true', help='Try to directly load saved vcd with experiment name.')
 
     # data
-    # parser.add_argument('--dataset', default='kubric', type=str,help='dataset to use')
-    parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='davis16', type=str,help='dataset to use')
-    # parser.add_argument('--dataset', default='davis16_val', type=str,help='dataset to use')
-    parser.add_argument('--target_class', default='Rolling something on a flat surface', type=str,help='target class name for classification dataset')
-    # parser.add_argument('--target_class', default='Hitting something with something', type=str,help='target class name for classification dataset')
-    # parser.add_argument('--target_class', default='Dropping something behind something', type=str,help='target class name for classification dataset')
-    parser.add_argument('--target_class_idxs', nargs='+', default=[], type=int,help='target class idx for multiple target class setting')
+    parser.add_argument('--dataset', default='ssv2', type=str,help='Dataset to use. [kubric | ssv2 | davis16 | davis16_val]]')
+    parser.add_argument('--target_class', default='Rolling something on a flat surface', type=str,help='Target class name for classification dataset')
     parser.add_argument('--max_num_videos', default=5, type=int,help='Number of videos to use during clustering.')
+    parser.add_argument('--target_class_idxs', nargs='+', default=[], type=int,help='target class idx for multiple target class setting')
     parser.add_argument('--force_reload_videos', action='store_true',help='Flag to force reload videos and not use cache.')
     parser.add_argument('--dataset_cache', action='store_true',help='Option to cache dataset in memory.')
-    parser.add_argument('--use_train', action='store_true', help='experiment name (used for saving)')
-    parser.add_argument('--kubric_path', default='/data/kubcon_v10', type=str,help='kubric path')
-    parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
-    parser.add_argument('--davis16_path', default='/data/DAVIS16', type=str,help='kubric path')
-    parser.add_argument('--checkpoint_path', default='', type=str,help='Override checkpoint path for any model.')
-    parser.add_argument('--process_full_video', action='store_true', help='Run VTCD on the full video length.')
+    parser.add_argument('--use_train', action='store_true', help='Option to use training set for ssv2')
+    parser.add_argument('--kubric_path', default='/home/m2kowal/data/kubcon_v10', type=str,help='kubric path')
+    parser.add_argument('--ssv2_path', default='/home/m2kowal/data/ssv2', type=str,help='kubric path')
+    parser.add_argument('--davis16_path', default='/home/m2kowal/data/DAVIS', type=str,help='kubric path')
 
     # model and clustering settings
-    parser.add_argument('--model', default='timesformer_occ', type=str,help='Model to run.')
-    # parser.add_argument('--model', default='vidmae_ssv2_pre', type=str,help='Model to run.')
-    # parser.add_argument('--model', default='vidmae_ssv2_ft', type=str,help='Model to run.')
-    # parser.add_argument('--model', default='intern', type=str,help='Model to run.')
+    parser.add_argument('--model', default='timesformer_occ', type=str,help='Model to run. [timesformer_occ | vidmae_ssv2_pre | vidmae_ssv2_ft | intern]')
+    parser.add_argument('--process_full_video', action='store_true', help='Run VTCD on the full video length.')
     parser.add_argument('--cluster_layer', nargs='+', default=[10], type=int,
-                        help='Layers to perform clustering at.')
+                        help='Layers to perform clustering at. [0-11]')
     parser.add_argument('--attn_head', nargs='+', default=[0], type=int,
-                        help='Which heads to cluster.')
+                        help='Which heads to cluster. [0-11]')
     parser.add_argument('--cluster_subject', default='keys', type=str,
                         help='Subject to cluster within attention layers)', choices=['keys','queries','values'])
+    parser.add_argument('--checkpoint_path', default='', type=str,help='Override checkpoint path for any model.')
     parser.add_argument('--use_temporal_attn', action='store_true', help='Flag to use temporal feature maps for timesformer.')
 
 
     # clustering
-    parser.add_argument('--intra_cluster_method', default='slic', type=str, help='Method to use for intra clustering (max | yellowbrick | dino | dino_og | slic | multikmeans | crop).')
+    parser.add_argument('--intra_cluster_method', default='slic', type=str, help='Method to use for intra clustering (dino | dino_og | slic | multikmeans | crop).')
     parser.add_argument('--inter_cluster_method', default='cnmf_elbow', type=str, help='K determination method to use for inter clustering (max | yellowbrick | dino | dino_og | cnmf | cnmf_elbow).')
     parser.add_argument('--pool_feature', action='store_false', help='Flag to perform spatial pooling before inter clustering.')
     parser.add_argument('--pool_non_zero_features', action='store_false', help='Flag to ignore zeros during pooling.')
@@ -146,14 +138,13 @@ def vcd_args():
     parser.add_argument('--intra_inter_cluster', action='store_false', help='Flag to perform clustering across all videos at intra.')
     parser.add_argument('--n_segments', nargs='+', default=[12], help='Threshold for intra-video elbow method.')
     parser.add_argument('--slic_compactness', nargs='+', default=[0.1], help='Compactnesses to use for SLIC clustering.')
-    parser.add_argument('--slic_spacing', nargs='+', default=[1,1,1], type=str, help='spacing to use for SLIC clustering.')
-    parser.add_argument('--spatial_resize_factor', default=0.5, type=float, help='Fraction of video size to perform clustering at.')
-    parser.add_argument('--temporal_resize_factor', default=1, type=float, help='Fraction of video size to perform clustering at.')
+    parser.add_argument('--slic_spacing', nargs='+', default=[1,1,1], type=str, help='Spacing to use for SLIC clustering.')
+    parser.add_argument('--spatial_resize_factor', default=0.5, type=float, help='Fraction of spatial video size to perform clustering at.')
+    parser.add_argument('--temporal_resize_factor', default=1, type=float, help='Fraction of temporal video size to perform clustering at.')
 
-    # visualization intra_cluster_all_videos
+    # Debugging - visualization for tubelet clustering
     parser.add_argument('--save_intra_segments', action='store_true',help='Flag to save intra-video segments.')
     parser.add_argument('--save_prediction', action='store_true',help='Flag prediction of model if applicable.')
-
     parser.add_argument('--save_intra_indv_segments', action='store_true',help='Flag to save intra-video segments as individual videos.')
     parser.add_argument('--save_concepts', action='store_true',help='Flag to save concept videos.')
     parser.add_argument('--save_concept_frames', action='store_true',help='Flag to save concepts as frames.')
@@ -161,8 +152,6 @@ def vcd_args():
     parser.add_argument('--save_num_vids_per_concept', default=30, type=int, help='Sample interval for intra-video clustering.')
     parser.add_argument('--single_save_layer_head', nargs='+', default=[], type=int, help='Save a single layer and head and concepts')
     parser.add_argument('--save_single_concept_videos', action='store_true', help='Save a single layer and head')
-
-    # attribution settings
 
     # metrics
     parser.add_argument('--Eval_D16_VOS', action='store_true',help='Flag to compute concept metrics.')

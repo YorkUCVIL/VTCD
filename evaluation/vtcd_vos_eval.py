@@ -7,11 +7,11 @@ import json
 from scipy import ndimage
 from segment_anything.utils.transforms import ResizeLongestSide
 from torchvision.ops import masks_to_boxes
-resize_longest_side = ResizeLongestSide(1024)
+
 
 def compute_davis16_vos_score(vcd, first_frame_query=False,
                       train_head_search=False, post_sam=False, num_points=1, mode='random',
-                      sample_factor=8, use_last_centroid=False, use_box=False):
+                      sample_factor=8, use_last_centroid=False, use_box=False, sam_type='vit_h'):
     '''
     Computes VOS score for the DAVIS dataset
     '''
@@ -22,19 +22,22 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
         from segment_anything import sam_model_registry, SamPredictor
 
         # load sam model
-        sam_checkpoint = "segment_anything/ckpts/sam_vit_h_4b8939.pth"
-        model_type = "vit_h"
-        # sam_checkpoint = "segment_anything/ckpts/sam_vit_b_01ec64.pth"
-        # model_type = "vit_b"
+        if sam_type == 'vit_h':
+            sam_checkpoint = "segment_anything/ckpts/sam_vit_h_4b8939.pth"
+            model_type = "vit_h"
+        elif sam_type == 'vit_b':
+            sam_checkpoint = "segment_anything/ckpts/sam_vit_b_01ec64.pth"
+            model_type = "vit_b"
+        else:
+            raise NotImplementedError
 
+        # load and move model to device
         device = "cuda"
-
         sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
         sam.to(device=device)
-
         predictor = SamPredictor(sam)
 
-    # reloading dataset
+    # reload dataset
     if 'timesformer' in vcd.args.model:
         sampling_rate = 1
         num_frames = 30
@@ -43,7 +46,7 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
         num_frames = 16
     vcd.dataset = vcd.load_davis16_videos(sampling_rate, num_frames)
 
-    # save path - load train results if filtering by training results
+    # Load train results if filtering by training results
     save_path = os.path.join(vcd.args.save_dir, 'davis16_vos_results.json')
     if train_head_search:
         train_path = save_path.replace('val', 'train')
@@ -52,7 +55,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
         best_heads = []
         for video_idx in results.keys():
             best_heads.append(results[video_idx][0][0].split('concept')[0][:-1])
-
         best_heads_norepeat = list(dict.fromkeys(best_heads))
 
     results = {}
@@ -68,7 +70,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                 'concept': None,
                 'iou': 0
             }
-
             for layer in reversed(vcd.dic.keys()):
                 for head in vcd.args.attn_head:
                     if train_head_search:
@@ -106,11 +107,10 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                                 best_dict['iou'] = iou
                                 best_concept_mask = single_tubelet_mask
 
-
-                        # compute iou for best concept over all frames
+            # compute iou for best concept over all frames
             video_ids = vcd.dic[best_dict['layer']][best_dict['head']][best_dict['concept']]['video_numbers']
             if video_idx not in video_ids:
-                final_iou = 0
+                per_video_frame_iou = 0
             else:
                 if not vcd.args.process_full_video:
                     labels = torch.stack(vcd.labels)[video_idx]
@@ -123,7 +123,12 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                                                     use_box=use_box)
                         labels = torch.stack(vcd.labels)[video_idx]
                     # compute iou
-                    final_iou = compute_iou(concept_masks, labels)
+                    per_video_frame_iou = []
+                    for frame_idx in range(label.shape[0]):
+                        iou = compute_iou(concept_masks[frame_idx], label[frame_idx])
+                        per_video_frame_iou.append(iou)
+                        per_frame_iou.append(iou)
+                    per_video_frame_iou = np.mean(per_video_frame_iou)
                 else:
                     # grab label for video_idx
                     if post_sam:
@@ -132,7 +137,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                                                     num_points=num_points, mode=mode,
                                                     sample_factor=sample_factor,use_last_centroid=use_last_centroid,
                                                     use_box=use_box)
-                        # video_iou = compute_iou(final_mask, label)
                         per_video_frame_iou = []
                         for frame_idx in range(label.shape[0]):
                             iou = compute_iou(final_mask[frame_idx], label[frame_idx])
@@ -141,7 +145,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                         per_video_frame_iou = np.mean(per_video_frame_iou)
                     else:
                         final_mask = best_concept_mask
-                        # video_iou = compute_iou(best_concept_mask, label)
                         per_video_frame_iou = []
                         for frame_idx in range(label.shape[0]):
                             iou = compute_iou(final_mask[frame_idx], label[frame_idx])
@@ -149,7 +152,7 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                             per_frame_iou.append(iou)
                         per_video_frame_iou = np.mean(per_video_frame_iou)
 
-                    # save prediction
+                    # save prediction in format (rgb_video, prediction, non_processed_mask, label)
                     save_prediction(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix='d16')
 
             # print('Best concept based on query frame: {}, iou: {}'.format(best_concept, iou))
@@ -200,11 +203,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                         key = 'layer_{} head_{} {}'.format(layer, head, concept)
                         results[video_idx][key] = iou
 
-
-        # sort results by iou for current video
-        curr_video_results = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
-        print('Video: {}, Best head: {}, IoU: {}'.format(video_idx, curr_video_results[0][0], curr_video_results[0][1]))
-
     # sort results by iou
     for video_idx in results.keys():
         results[video_idx] = sorted(results[video_idx].items(), key=lambda x: x[1], reverse=True)
@@ -237,33 +235,23 @@ def postprocess(concept_mask, video, predictor, num_points=1, mode='random',use_
     new_mask: (T, H, W) torch.bool
     '''
 
+    # initialize new mask as zeros
     new_mask = torch.zeros_like(concept_mask[0])
-
-    # video = video.cuda()
     # iterate through images
     for frame_idx in range(concept_mask.shape[1]):
         image = (video[:, frame_idx]*255).clamp(0,255).type(torch.uint8)
 
         # resize
         concept_mask_frame = concept_mask[:, frame_idx]
-
-
-        if use_torch:
-            concept_mask_frame = torch.tensor(resize_longest_side.apply_image(concept_mask_frame.type(torch.uint8).permute(1,2,0).cpu().numpy()))
-
         if len(concept_mask_frame.shape) == 2:
             concept_mask_frame = concept_mask_frame.unsqueeze(0)
 
-        # use centroid of last frame as initial point
+        # use centroid of last frame as a sampled point
         if use_last_centroid:
             if frame_idx == 0:
-                # get points
                 input_points, com_pre = sample_points(concept_mask_frame, num_points=num_points, mode=mode, sample_factor=sample_factor)
             else:
-                # use centroid of last frame as initial point
-                # get points
                 input_points, com_post = sample_points(concept_mask_frame, num_points=num_points-1, mode=mode,sample_factor=sample_factor)
-
                 try:
                     input_points = np.concatenate([input_points, com_pre[None]], axis=0)
                     com_pre = com_post
@@ -286,19 +274,10 @@ def postprocess(concept_mask, video, predictor, num_points=1, mode='random',use_
         input_points = input_points.astype(np.int32)
         input_labels = np.array([1]*num_points)
 
-        if use_torch:
-            # resize longest side of image to 1024
-            resized_image = torch.tensor(resize_longest_side.apply_image(image.permute(1,2,0).cpu().numpy())).cuda()
-            predictor.set_torch_image(resized_image.permute(2,0,1).unsqueeze(0), (video.shape[-2], video.shape[-1]))
-        else:
-            predictor.set_image(image.permute(1, 2, 0).numpy())
+        # set image for predictor
+        predictor.set_image(image.permute(1, 2, 0).numpy())
 
-
-        # resize concept mask to 256
-        # resize_longest_side = ResizeLongestSide(256)
-        # sam_mask_input = resize_longest_side.apply_image(concept_mask_frame[0].type(torch.uint8)).astype(bool)
-        # sam_masks, scores, logits = predictor.predict(mask_input=sam_mask_input[None],multimask_output=False)
-
+        # predict with SAM
         if use_box:
             sam_masks, scores, logits = predictor.predict(
                 point_coords=input_points,
@@ -311,7 +290,6 @@ def postprocess(concept_mask, video, predictor, num_points=1, mode='random',use_
                 point_coords=input_points,
                 point_labels=input_labels,
                 multimask_output=True,
-                # mask_input=concept_mask_frame.unsqueeze(0),
             )
 
         if use_highest_overlap_with_concept:
@@ -325,7 +303,10 @@ def postprocess(concept_mask, video, predictor, num_points=1, mode='random',use_
         new_mask[frame_idx] = torch.tensor(best_sam_mask).bool()
 
 
-        # # visualize selected sampled points over image
+        # debugging visualizations ----------
+
+        # visualize selected sampled points over image
+        # resize_longest_side = ResizeLongestSide(1024)
         # plt.figure(figsize=(10, 10))
         # plt.imshow(image.permute(1, 2, 0).cpu().numpy())
         # # resize mask
@@ -350,26 +331,6 @@ def postprocess(concept_mask, video, predictor, num_points=1, mode='random',use_
         #     plt.show()
         #     print()
 
-
-        # debug
-        # predictor.set_image(image*255)
-        # input_point = np.array([[150, 50]])
-        # input_label = np.array([1])
-        # masks, scores, logits = predictor.predict(
-        #     point_coords=input_point,
-        #     point_labels=input_label,
-        #     multimask_output=True,
-        # )
-        # for i, (mask, score) in enumerate(zip(masks, scores)):
-        #     plt.figure(figsize=(10, 10))
-        #     plt.imshow(image.permute(1, 2, 0))
-        #     show_mask(mask, plt.gca())
-        #     show_points(input_point, input_label, plt.gca())
-        #     plt.title(f"Mask {i + 1}, Score: {score:.3f}", fontsize=18)
-        #     plt.axis('off')
-        #     plt.show()
-
-
     return new_mask
 
 
@@ -378,11 +339,12 @@ def sample_points(mask, num_points=1, mode='random', mask_area=True, sample_fact
     inputs:
     :param mask:
     :param num_points:
-    :return: points = np.array([[500, 375], [1125, 625]]) shape (2, 2)
+    :return: points (num_points, 2), com (2,)
     '''
     # combine masks into one, where 1 is foreground and 0 is background
     mask = mask.float().sum(0).clamp(0, 1).bool()
     com = ndimage.center_of_mass(np.array(mask).astype(np.uint8))
+
     # sample num_points points from mask as (x, y) coordinates
     if mode == 'random':
         points = torch.nonzero(mask).float()
@@ -401,8 +363,6 @@ def sample_points(mask, num_points=1, mode='random', mask_area=True, sample_fact
                 mask_box = np.concatenate([mask_box.min(0), mask_box.max(0)])
                 # sample from gaussian with mean at centroid and std of 1/2 the mask size
                 points = np.random.multivariate_normal(com, (mask_box[2:] - mask_box[:2] * np.eye(2)) / sample_factor, num_points)
-                # check if points fall outside the mask
-                # points = points[(points[:, 0] >= 0) & (points[:, 0] < mask.shape[-1]) & (points[:, 1] >= 0) & (points[:, 1] < mask.shape[-2])]
             else:
                 # sample from gaussian with mean at centroid and std of 1/8 of image size
                 points = np.random.multivariate_normal(com, mask.shape[-1] / sample_factor * np.eye(2), num_points)
@@ -439,7 +399,6 @@ def compute_iou(v1, v2):
 
     return float(iou)
 
-
 def show_mask(mask, ax, random_color=False):
     if random_color:
         color = np.concatenate([np.random.random(3), np.array([0.6])], axis=0)
@@ -458,7 +417,6 @@ def show_points(coords, labels, ax, marker_size=375):
     ax.scatter(neg_points[:, 0], neg_points[:, 1], color='red', marker='*', s=marker_size, edgecolor='white',
                linewidth=1.25)
 
-
 def show_box(box, ax):
     x0, y0 = box[0], box[1]
     w, h = box[2] - box[0], box[3] - box[1]
@@ -470,7 +428,6 @@ def save_prediction(vcd, rgb_video, prediction, non_processed_mask, label, video
 
     rgb_video = rgb_video.permute(1,2,3,0)
 
-
     # create canvas of size (T, H, W*4, 3)
     canvas_video = np.zeros((rgb_video.shape[0], rgb_video.shape[1], rgb_video.shape[2]*4, 3), dtype=np.uint8)
     # add rgb video
@@ -480,7 +437,7 @@ def save_prediction(vcd, rgb_video, prediction, non_processed_mask, label, video
     pred_mask = np.array(prediction.float())
     # stack along last axis
     pred_mask = np.stack([pred_mask, pred_mask, pred_mask], axis=-1)
-    # where mask is 1, alpha blend rgb_video towards green in 0-1 range
+    # where mask is 1, set rgb_video to green
     prediction_rgb = np.where(pred_mask, np.array([0, 1, 0]), rgb_video)
     # add to canvas
     canvas_video[:, :, rgb_video.shape[2]:rgb_video.shape[2]*2, :] = (prediction_rgb*255).astype(np.uint8)
@@ -489,7 +446,7 @@ def save_prediction(vcd, rgb_video, prediction, non_processed_mask, label, video
     non_processed_mask = np.array(non_processed_mask.float())
     # stack along last axis
     non_processed_mask = np.stack([non_processed_mask, non_processed_mask, non_processed_mask], axis=-1)
-    # where mask is 1, alpha blend rgb_video towards red in 0-1 range
+    # where mask is 1, set rgb_video to red
     non_processed_mask_rgb = np.where(non_processed_mask, np.array([1, 0, 0]), rgb_video)
     # add to canvas
     canvas_video[:,:, rgb_video.shape[2]*2:rgb_video.shape[2]*3, :] = (non_processed_mask_rgb*255).astype(np.uint8)
@@ -498,7 +455,7 @@ def save_prediction(vcd, rgb_video, prediction, non_processed_mask, label, video
     label = np.array(label.float())
     # stack along last axis
     label = np.stack([label, label, label], axis=-1)
-    # where mask is 1, alpha blend rgb_video towards blue in 0-1 range
+    # where mask is 1, set rgb_video to blue
     label_rgb = np.where(label, np.array([0, 0, 1]), rgb_video)
     # add to canvas
     canvas_video[:,:, rgb_video.shape[2]*3:rgb_video.shape[2]*4, :] = (label_rgb*255).astype(np.uint8)

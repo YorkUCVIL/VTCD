@@ -457,7 +457,6 @@ def vcd_args():
 
     # general
     parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    parser.add_argument('--dataset_pkl_path', default='/data/ssv2/v1_60_136_137_138_159_163_Max60_train.pkl', type=str,help='dataset to use')
     parser.add_argument('--kubric_path', default='/data/kubcon_v10', type=str,help='kubric path')
     parser.add_argument('--uvo_path', default='/home/matthewkowal/data/uvo', type=str,help='kubric path')
     parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
@@ -486,7 +485,7 @@ def vcd_args():
 
 
     # concept importance
-    parser.add_argument('--removal_type', default='rish', help='type of attribution removal to do. [perlay | alllay | alllayhead || rish | gradient]')
+    parser.add_argument('--removal_type', default='cris', help='type of attribution removal to do. [perlay | alllay | alllayhead || rish | gradient]')
     parser.add_argument('--num_masks', default=25, type=int, help='Number of masks to forward pass during random head removal for RISH.')
     parser.add_argument('--heads_removed_each_step', default=10, type=int, help='Number of passes during random head removal for RISH.')
     parser.add_argument('--random_importance', action='store_true', help='Use random concept importance.')

@@ -43,14 +43,6 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
             model.sampling_rate = 1 # just for rosetta concepts
 
         if hook is not None:
-            # if args.cluster_subject == 'tokens':
-            #     model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[hook_layer].register_forward_hook(hook)
-            #     if centroids is not None:
-            #         model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[hook_layer].centroid = \
-            #         centroids[hook_layer]
-            # else:
-            #     # model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[hook_layer]._modules['attn']._modules['qkv'].register_forward_hook(hook)
-
             # remove existing hook if it exists
             if isinstance(hook_layer, list):
                 if args.removal_type == 'alllayhead':
@@ -70,7 +62,7 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
                         for lay in hook_layer:
                             model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[str(lay)]._modules['attn']._modules['qkv'].register_forward_hook(hook)
                             model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[str(lay)]._modules['attn']._modules['qkv'].hook_dict = hook_dict[lay] if hook_dict is not None else None
-                elif args.removal_type == 'rish':
+                elif args.removal_type == 'cris':
                     for lay in range(12):
                         if len(model.seeker.tracker_backbone.timesformer.model._modules['blocks']._modules[
                                    str(lay)]._modules['attn']._modules['qkv']._forward_hooks) > 0:
@@ -300,7 +292,6 @@ def load_model(args, hook=None, hook_layer=None, feature_hat=None, model=None, h
                     model.blocks._modules[str(hook_layer)].hook_dict = hook_dict if hook_dict is not None else None
                 else:
                     for lay in range(12):
-                        # model.visual.transformer.resblocks._modules[str(lay)]._modules['attn']
                         if hasattr(model.visual.transformer.resblocks._modules[str(lay)]._modules['attn'], 'hook_dict'):
                             delattr(model.visual.transformer.resblocks._modules[str(lay)]._modules['attn'], 'hook_dict')
                     # register hook for all layers
@@ -327,11 +318,9 @@ def prepare_directories(args):
     return args
 
 def save_vcd(vcd):
-
     vcd_path = os.path.join(vcd.args.vcd_dir, 'vcd.pkl')
 
     # clean up dic
-
     # save dataset as pickle file
     with open(vcd.cached_file_path, 'wb') as f:
         pickle.dump(vcd.dataset, f)

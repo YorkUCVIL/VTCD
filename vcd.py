@@ -595,11 +595,6 @@ class VideoConceptDiscovery(object):
                 save_file = os.path.join(prediction_save_dir, f'{vid_idx}.mp4')
                 self.save_video(vis_snitch, save_file, fps=6)
 
-
-                # vis_allout = self.create_model_output_snitch_occl_cont_video(
-                #     seeker_rgb, output_mask[q], query_border, snitch_border, frontmost_border,
-                #     outermost_border, grayscale=True)
-
                 # save frames
                 prediction_frame_save_dir = os.path.join(self.args.save_dir, 'prediction_frames')
                 if not os.path.exists(prediction_frame_save_dir):
@@ -1130,7 +1125,7 @@ class VideoConceptDiscovery(object):
                     torch.cuda.empty_cache()
                     exit()
                 for head_idx, head in enumerate(self.args.attn_head):
-                    feature = features[vid_idx][:,:,head_idx]
+                    feature = features[vid_idx][:,:,head]
                     B, C, T, H, W = feature.shape
                     with threadpool_limits(limits=self.args.max_num_workers, user_api='openmp'):
                         if self.args.save_intr_concept_videos_all_k:
@@ -1275,7 +1270,6 @@ class VideoConceptDiscovery(object):
         """
         Clusters the features of multiple videos into different concept clusters.
         """
-
         # get video features
         self.dic = {layer: {} for layer in self.args.cluster_layer}
         for layer_idx, layer in enumerate(self.args.cluster_layer):

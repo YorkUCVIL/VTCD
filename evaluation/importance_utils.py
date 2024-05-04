@@ -22,7 +22,7 @@ def compute_concept_importance(args, vcd, break_point=None):
         vcd: video concept class
         model: model to use for importance
     Returns:
-        concept_importance: dictionary of concept importance scores
+        CRIS: dictionary of concept importance scores
         {layer: {head: {concept: [score]}}}
         or
         {layer: {head: {concept: [{metric: score}]}}}

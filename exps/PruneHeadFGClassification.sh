@@ -1,0 +1,2 @@
+echo "Pruning VideoMAE heads for improved and efficient performance on spilling classes in SSv2"
+python evaluation/prune_heads_full_dataset.py --target_class_idxs 60 136 137 138 159 63 --num_masks 25 --num_workers 8 --batch_size 2
