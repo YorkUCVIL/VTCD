@@ -2,6 +2,16 @@
 Official PyTorch Implementation of our CVPR 2024 (Highlight) Paper! This repository enables the discovery and ranking 
 of concepts in video transformers.
 
+[Matthew Kowal](https://mkowal2.github.io/),
+[Achal Dave](https://www.achaldave.com/),
+[Rares Ambrus](https://www.tri.global/about-us/dr-rares-ambrus),
+[Adrien Gaidon](https://adriengaidon.com/),
+[Konstantinos G. Derpanis](https://csprofkgd.github.io/),
+[Pavel Tokmakov](https://pvtokmakov.github.io/home/)
+
+York University, Samsung AI Centre Toronto, Toyota Research Institute, Vector Institute
+
+
 [Paper](https://arxiv.org/abs/2401.10831), [project page](https://yorkucvil.github.io/VTCD/)
 
 ![Teaser](Teaser.png)
