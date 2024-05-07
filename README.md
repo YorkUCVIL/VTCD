@@ -21,9 +21,10 @@ York University, Samsung AI Centre Toronto, Toyota Research Institute, Vector In
 conda create -n VTCD python=3.10.12
 conda activate VTCD
 cd models/hide_seek/tcow/TimeSformer ; pip install -e .
-cd segment-anything; pip install -e .
+cd ../../../../segment-anything; pip install -e .
 pip install 'git+https://github.com/facebookresearch/fvcore'
 pip install -r requirements.txt
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.3 -c pytorch
 ```
 
 # 2) Data Preparation
@@ -46,36 +47,25 @@ Download the pre-trained models from the following link and extract the followin
 https://drive.google.com/drive/folders/1SGfDjA35BhxsJ8k-HwElzWn2YVSCoIot?usp=sharing
 
 ## 3.2) Run VTCD for concept discovery
-To discover the concepts within a model, use run_vcd.py. Then, to rank the importance of all concepts, use CRIS.py.
-An example of running VTCD with [TCOW](https://tcow.cs.columbia.edu/) pre-trained on Kubric dataset 
-can be run with [TCOW_Kubric.sh](exps%2FTCOW_Kubric.sh), as:
-```
-sh exps/TCOW_Kubric.sh
-```
-
-Similarly, 
-[Find_Rosetta_Concepts_SSv2_Rolling.sh](exps%2FFind_Rosetta_Concepts_SSv2_Rolling.sh) provides examples of VTCD and CRIS
-with all four models run on the SSv2 class Rolling Something on a Flat Surface: 
-[TCOW](https://tcow.cs.columbia.edu/), 
-[VideoMAE (FT), VideoMAE (Pretrained)](https://github.com/MCG-NJU/VideoMAE), and 
-[InternVideo](https://github.com/OpenGVLab/InternVideo). This can be run with the following command:
-```
-sh exps/Find_Rosetta_Concepts_SSv2_Rolling.sh
-```
-
-## VTCD example
-For an example of a single VTCD command, to run VTCD with VideoMAE finetuned on SSV2 for the target class 'Rolling something on a flat surface', while saving the concepts, and then evaluate the importance of the concepts using CRIS, use the following commands:
+Running VTCD uses the script [run_vcd.py](run_vcd.py). For an example of a running VTCD with VideoMAE finetuned on SSV2 for the target class 'Rolling something on a flat surface', while saving the concepts, and then evaluate the importance of the concepts using CRIS, use the following commands:
 ```
 python run_vcd.py --exp_name VideoMAE_FT_SSv2_Rolling --target_class 'Rolling something on a flat surface' --attn_head 0 1 2 3 4 5 6 7 8 9 10 11  --max_num_videos 29 --model vidmae_ssv2_ft --dataset ssv2 --cluster_layer 0 1 2 3 4 5 6 7 8 9 10 11  --slic_compactness 0.1 --force_reload_videos
 python CRIS.py --exp_name VideoMAE_FT_SSv2_Rolling --num_masks 4000 --heads_removed_each_step 100 --masking_ratio 0.5
 ```
 
+To run VTCD on the [TCOW](https://tcow.cs.columbia.edu/) model pre-trained on Kubric dataset, 
+use [TCOW_Kubric.sh](exps%2FTCOW_Kubric.sh), as:
+```
+sh exps/TCOW_Kubric.sh
+```
+
 # 4) Finding Rosetta concepts between the four models
-The script [Find_Rosetta_Concepts_SSv2_Rolling.sh](exps%2FFind_Rosetta_Concepts_SSv2_Rolling.sh) runs VTCD and CRIS for
-all four models on the SSv2 class 'Rolling something on a flat surface'. Then it uses 
-[find_rosetta_concepts.py](find_rosetta_concepts.py) to find the rosetta concepts between the four models. 
 Rosetta concepts are concepts that are (i) important in all models and (ii) have a high degree of overlap (IoU) across 
-the models. To run the script, use the following command:
+the models. The script [Find_Rosetta_Concepts_SSv2_Rolling.sh](exps%2FFind_Rosetta_Concepts_SSv2_Rolling.sh) runs VTCD and CRIS for
+all four models on the SSv2 class 'Rolling something on a flat surface'. Then it uses 
+[find_rosetta_concepts.py](find_rosetta_concepts.py) to find the rosetta concepts between the four models: [TCOW](https://tcow.cs.columbia.edu/), 
+[VideoMAE (FT), VideoMAE (Pretrained)](https://github.com/MCG-NJU/VideoMAE), and 
+[InternVideo](https://github.com/OpenGVLab/InternVideo). To run the script, use the following command:
 ```
 sh exps/Find_Rosetta_Concepts_SSv2_Rolling.sh
 ```

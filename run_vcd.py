@@ -12,7 +12,7 @@ import json
 import numpy as np
 import torch
 from vcd import VideoConceptDiscovery as VTCD
-from utils.utils import load_model, save_vcd, prepare_directories
+from utilities.utils import load_model, save_vcd, prepare_directories
 
 def main(args):
     # prepare directories
