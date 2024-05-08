@@ -198,7 +198,6 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                                     iou = compute_iou(single_tubelet_mask[frame_idx], label[frame_idx])
                                     per_video_frame_iou.append(iou)
                                     per_frame_iou.append(iou)
-                                per_video_frame_iou = np.mean(per_video_frame_iou)
 
                         key = 'layer_{} head_{} {}'.format(layer, head, concept)
                         results[video_idx][key] = iou
@@ -212,10 +211,11 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
     for video_idx in results.keys():
         best_ious.append(results[video_idx][0][1])
     mIoU = np.mean(best_ious)
-    print('mIoU: {}'.format(mIoU))
+    print('Video mIoU: {}'.format(mIoU))
 
-    per_frame_iou = np.mean(per_frame_iou)
-    print('per frame iou: {}'.format(per_frame_iou))
+    if first_frame_query:
+        per_frame_iou = np.mean(per_frame_iou)
+        print('Per Frame mIoU: {}'.format(per_frame_iou))
 
     # save results as json file
     with open(save_path, 'w') as f:
