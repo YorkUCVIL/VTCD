@@ -446,7 +446,7 @@ def vcd_args():
 
     # general
     parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
+    parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='SSV2 path')
     parser.add_argument('--custom_path', default='data/sample', type=str,help='path to custom dataset')
     parser.add_argument('--force_reload_videos', action='store_true',help='Maximum number of videos to use during clustering.')
     parser.add_argument('--cache_name', default='v1', type=str,help='experiment name (used for saving)')
