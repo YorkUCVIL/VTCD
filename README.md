@@ -95,7 +95,7 @@ sh exps/D16_VOS_VTCD.sh
 # Adding a new model to VTCD
 Follow the steps below to add a new model to the VTCD framework:
 1) Load the model and checkpoint into the function load_model in utilities/utils.py, then add model name to args.model in run_vcd.py
-2) Implement forward pass of model in the get_layer_activations function in vcd.py (this needs to return a features variable with shape # features.shape = num_layers X channels X num_heads X time X height X width)
+2) Implement forward pass of model in the get_layer_activations function in vcd.py (this needs to return a features variable (e.g., Keys, Queries, Values) with shape # features.shape = num_layers X channels X num_heads X time X height X width)
 3) If you want to use CRIS for importance rankings, you will need to provide the forward pass and metric (e.g., loss, accuracy) in head_concept_attribution_fidelity.py at lines 208,270, and 515
 4) To add a new dataset, you need to add two arguments (args.path_to_dataset and args.dataset) in run_vcd.py and then add a new function in vcd.py, load_DATASET_videos, that loads the videos (b x c x t x h x w) and returns them in the same format as in the current datasets (e.g., look at the load_ssv2_videos function for an example). 
 

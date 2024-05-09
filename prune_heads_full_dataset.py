@@ -1,25 +1,14 @@
 
 import os
-import sys
 import time
-import random
-import gc
 import argparse
 import json
 import pickle
-import numpy as np
-import torch
-from einops import rearrange
-sys.path.append('/home/ubuntu/VTCD/')
-from utilities.utils import load_model
-from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track
 from evaluation.importance_utils import *
-import torch.nn.functional as F
 import torchvision
 import models.hide_seek.tcow as tcow
 from decord import VideoReader, cpu
 from torch.utils.data import Dataset, DataLoader
-
 from tqdm import tqdm
 def main(args):
     '''
@@ -457,11 +446,7 @@ def vcd_args():
 
     # general
     parser.add_argument('--dataset', default='ssv2', type=str,help='dataset to use')
-    parser.add_argument('--kubric_path', default='/data/kubcon_v10', type=str,help='kubric path')
-    parser.add_argument('--uvo_path', default='/home/matthewkowal/data/uvo', type=str,help='kubric path')
     parser.add_argument('--ssv2_path', default='/data/ssv2', type=str,help='kubric path')
-    parser.add_argument('--kinetics_path', default='/data/kinetics400', type=str,help='kubric path')
-    parser.add_argument('--target_class', default='Dropping something into something', type=str,help='target class name for classification dataset')
     parser.add_argument('--custom_path', default='data/sample', type=str,help='path to custom dataset')
     parser.add_argument('--force_reload_videos', action='store_true',help='Maximum number of videos to use during clustering.')
     parser.add_argument('--cache_name', default='v1', type=str,help='experiment name (used for saving)')
