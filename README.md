@@ -43,8 +43,12 @@ conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit
 # 3) Runing VTCD to discover and rank the importance of concepts
 
 ## 3.1) Download pretained models
-Download the pre-trained models from the following link and extract the following folder into the root directory of the project:
-https://drive.google.com/drive/folders/1SGfDjA35BhxsJ8k-HwElzWn2YVSCoIot?usp=sharing
+Download the pre-trained video understanding models from the 
+[following link](https://drive.google.com/drive/folders/1SGfDjA35BhxsJ8k-HwElzWn2YVSCoIot?usp=sharing) and extract 
+the folder into the root directory of the project. If you are using Segment Anything, download the pre-trained models from
+these links and place them in the same checkpoint directory as above: 
+[ViT_b](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth) and [ViT_h](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth).
+
 
 ## 3.2) Run VTCD for concept discovery
 Running VTCD uses the script [run_vcd.py](run_vcd.py). For an example of a running VTCD with VideoMAE finetuned on SSV2 for the target class 'Rolling something on a flat surface', while saving the concepts, and then evaluate the importance of the concepts using CRIS, use the following commands:

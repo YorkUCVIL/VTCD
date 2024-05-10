@@ -23,10 +23,10 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
 
         # load sam model
         if sam_type == 'vit_h':
-            sam_checkpoint = "segment_anything/ckpts/sam_vit_h_4b8939.pth"
+            sam_checkpoint = "checkpoints/sam_vit_h_4b8939.pth"
             model_type = "vit_h"
         elif sam_type == 'vit_b':
-            sam_checkpoint = "segment_anything/ckpts/sam_vit_b_01ec64.pth"
+            sam_checkpoint = "checkpoints/sam_vit_b_01ec64.pth"
             model_type = "vit_b"
         else:
             raise NotImplementedError
