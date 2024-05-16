@@ -1,35 +1,16 @@
 
-import os
-import glob
-import random
-import pickle
-import copy
+import psutil
+import gc
 import json
-import csv
 from decord import VideoReader, cpu
-import numpy as np
-import matplotlib.pyplot as plt
-import cv2
-from pathlib import Path
-import imageio
 from PIL import Image
 from sklearn.metrics.cluster import silhouette_score
-from sklearn.decomposition import PCA
-from einops import rearrange
-import torchvision
-import torch
 from threadpoolctl import threadpool_limits
-# from pycocotools import mask as maskUtils
-# from ytvostools.ytvos import YTVOS
 from utilities.clustering import cluster_features, cluster_dataset
 import models.hide_seek.tcow as tcow
-# import models.hide_seek.tcow.data.data_utils as data_utils
-# import models.hide_seek.tcow.pipeline as pipeline
 from models.hide_seek.tcow.data.data_vis import *
 from models.hide_seek.tcow.data.data_utils import *
 from models.hide_seek.tcow.eval.metrics import calculate_metrics_mask_track, calculate_weighted_averages
-import psutil
-import gc
 
 def random_color():
     """Generate a random color"""

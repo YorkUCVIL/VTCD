@@ -51,7 +51,9 @@ these links and place them in the same checkpoint directory as above:
 
 
 ## 3.2) Run VTCD for concept discovery
-Running VTCD uses the script [run_vcd.py](run_vcd.py). For an example of a running VTCD with VideoMAE finetuned on SSV2 for the target class 'Rolling something on a flat surface', while saving the concepts, and then evaluate the importance of the concepts using CRIS, use the following commands:
+Running VTCD uses the script [run_vcd.py](run_vcd.py). For an example of a running VTCD with VideoMAE finetuned on SSV2
+for the target class 'Rolling something on a flat surface', while saving the concepts to 'results', and then evaluate the importance
+of the concepts using CRIS, use the following commands:
 ```
 python run_vcd.py --exp_name VideoMAE_FT_SSv2_Rolling --target_class 'Rolling something on a flat surface' --attn_head 0 1 2 3 4 5 6 7 8 9 10 11  --max_num_videos 29 --model vidmae_ssv2_ft --dataset ssv2 --cluster_layer 0 1 2 3 4 5 6 7 8 9 10 11  --slic_compactness 0.1 --force_reload_videos
 python CRIS.py --exp_name VideoMAE_FT_SSv2_Rolling --num_masks 4000 --heads_removed_each_step 100 --masking_ratio 0.5
@@ -109,7 +111,7 @@ If you find this repository useful, please consider giving a star :star: and cit
 @inproceedings{kowal2024understanding,
   title={Understanding Video Transformers via Universal Concept Discovery},
   author={Kowal, Matthew and Dave, Achal and Ambrus, Rares and Gaidon, Adrien and Derpanis, Konstantinos G and Tokmakov, Pavel},
-  booktitle={Conference on Computer Vision and Pattern Recognition},
+  booktitle={arXiv preprint arXiv:2401.10831},
   year={2024}
 }
 ```

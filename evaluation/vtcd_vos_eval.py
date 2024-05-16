@@ -17,6 +17,7 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
     '''
 
     if post_sam:
+        prefix = 'd16_sam'
         import sys
         sys.path.append("..")
         from segment_anything import sam_model_registry, SamPredictor
@@ -36,6 +37,8 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
         sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
         sam.to(device=device)
         predictor = SamPredictor(sam)
+    else:
+        prefix = 'd16'
 
     # reload dataset
     if 'timesformer' in vcd.args.model:
@@ -153,7 +156,8 @@ def compute_davis16_vos_score(vcd, first_frame_query=False,
                         per_video_frame_iou = np.mean(per_video_frame_iou)
 
                     # save prediction in format (rgb_video, prediction, non_processed_mask, label)
-                    save_prediction(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix='d16')
+                    save_prediction_singles(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix=prefix)
+                    # save_prediction(vcd, vcd.dataset[video_idx], final_mask, best_concept_mask, label, video_idx, 0, best_dict, save_prefix=prefix)
 
             # print('Best concept based on query frame: {}, iou: {}'.format(best_concept, iou))
             key = 'layer_{} head_{} {}'.format(best_dict['layer'], best_dict['head'], best_dict['concept'])
@@ -476,4 +480,71 @@ def save_prediction(vcd, rgb_video, prediction, non_processed_mask, label, video
                     file_name=file_name,
                     extensions=['.mp4'], fps=6,
                     upscale_factor=1)
+    return
+
+def save_prediction_singles(vcd, rgb_video, prediction, non_processed_mask, label, video_idx, object_idx, best_dict,
+                    save_prefix='d17'):
+    # saves: rgb_video, prediction, non_processed_mask, label
+    # open folder for saving
+    save_folder = os.path.join(vcd.args.save_dir, save_prefix + "_predictions")
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+
+    # create directory per video
+    save_folder = os.path.join(save_folder, 'video_{}'.format(video_idx))
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+
+    rgb_video = rgb_video.permute(1,2,3,0)
+
+
+
+    # add rgb video
+
+    file_name = os.path.join(save_folder, 'rgb_object_{}_layer_{}_head_{}_concept_{}'.format(object_idx, best_dict['layer'], best_dict['head'], best_dict['concept']))
+    rgb_video = (rgb_video*255).numpy().astype(np.uint8)
+    vcd.save_video(frames=rgb_video,file_name=file_name,extensions=['.mp4'], fps=15,upscale_factor=1)
+
+
+    # create segmentation mask for prediction
+    pred_mask = np.array(prediction.float())
+    # stack along last axis
+    pred_mask = np.stack([pred_mask, pred_mask, pred_mask], axis=-1)
+    # where mask is 1, set rgb_video to green
+    # prediction_rgb = np.where(pred_mask, np.array([0, 1, 0]), rgb_video)
+    prediction_rgb = np.where(pred_mask, rgb_video * np.array([0, 0, 1]), rgb_video).astype(np.uint8)
+
+    # add to canvas
+    file_name = os.path.join(save_folder, 'predsam_object_{}_layer_{}_head_{}_concept_{}'.format(object_idx, best_dict['layer'], best_dict['head'], best_dict['concept']))
+    # prediction_rgb = (prediction_rgb*255).astype(np.uint8)
+    vcd.save_video(frames=prediction_rgb,file_name=file_name,extensions=['.mp4'], fps=15,upscale_factor=1)
+
+
+
+    # create segmentation mask for non_processed_mask
+    non_processed_mask = np.array(non_processed_mask.float())
+    # stack along last axis
+    non_processed_mask = np.stack([non_processed_mask, non_processed_mask, non_processed_mask], axis=-1)
+    # where mask is 1, set rgb_video to red
+    # non_processed_mask_rgb = np.where(non_processed_mask, np.array([1, 0, 0]), rgb_video)
+    non_processed_mask_rgb = np.where(non_processed_mask, rgb_video * np.array([1, 0, 0]), rgb_video).astype(np.uint8)
+
+    # add to canvas
+    file_name = os.path.join(save_folder, 'pred_object_{}_layer_{}_head_{}_concept_{}'.format(object_idx, best_dict['layer'], best_dict['head'], best_dict['concept']))
+    # non_processed_mask_rgb = (non_processed_mask_rgb*255).astype(np.uint8)
+    vcd.save_video(frames=non_processed_mask_rgb,file_name=file_name,extensions=['.mp4'], fps=15,upscale_factor=1)
+
+    # create segmentation mask for label
+    label = np.array(label.float())
+    # stack along last axis
+    label = np.stack([label, label, label], axis=-1)
+    # where mask is 1, set rgb_video to blue
+    # label_rgb = np.where(label, np.array([0, 0, 1]), rgb_video)
+    label_rgb = np.where(label, rgb_video * np.array([0, 1, 0]), rgb_video).astype(np.uint8)
+
+    # add to canvas
+    file_name = os.path.join(save_folder, 'label_object_{}_layer_{}_head_{}_concept_{}'.format(object_idx, best_dict['layer'], best_dict['head'], best_dict['concept']))
+    # label_rgb = (label_rgb*255).astype(np.uint8)
+    vcd.save_video(frames=label_rgb,file_name=file_name,extensions=['.mp4'], fps=15,upscale_factor=1)
+
     return
