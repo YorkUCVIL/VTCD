@@ -108,11 +108,13 @@ Follow the steps below to add a new model to the VTCD framework:
 # BibTeX
 If you find this repository useful, please consider giving a star :star: and citation :t-rex:
 ```
-@inproceedings{kowal2024understanding,
-  title={Understanding Video Transformers via Universal Concept Discovery},
-  author={Kowal, Matthew and Dave, Achal and Ambrus, Rares and Gaidon, Adrien and Derpanis, Konstantinos G and Tokmakov, Pavel},
-  booktitle={arXiv preprint arXiv:2401.10831},
-  year={2024}
+@InProceedings{Kowal_2024_CVPR,
+    author    = {Kowal, Matthew and Dave, Achal and Ambrus, Rares and Gaidon, Adrien and Derpanis, Konstantinos G. and Tokmakov, Pavel},
+    title     = {Understanding Video Transformers via Universal Concept Discovery},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2024},
+    pages     = {10946-10956}
 }
 ```
 
